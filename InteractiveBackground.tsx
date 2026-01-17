@@ -73,7 +73,7 @@ const InteractiveBackground: React.FC<Props> = ({ mousePos }) => {
           p.vy -= Math.sin(angle) * force * 2;
         }
 
-        // Return to origin force
+        // Return to origin
         const dxOrig = p.originX - p.x;
         const dyOrig = p.originY - p.y;
         p.vx += dxOrig * 0.03;
