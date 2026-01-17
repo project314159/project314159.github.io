@@ -1,5 +1,6 @@
+
 import React, { useEffect, useRef } from 'react';
-import { MousePosition } from '../types';
+import { MousePosition } from '../types.ts';
 
 interface Props {
   mousePos: MousePosition;
@@ -19,7 +20,6 @@ interface Particle {
 const InteractiveBackground: React.FC<Props> = ({ mousePos }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particles = useRef<Particle[]>([]);
-  // Fix: Added null as initial value for useRef to satisfy the requirement of 1 argument in strict TypeScript environments.
   const animationFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -60,7 +60,6 @@ const InteractiveBackground: React.FC<Props> = ({ mousePos }) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       particles.current.forEach(p => {
-        // Distance to mouse
         const dx = mousePos.x - p.x;
         const dy = mousePos.y - p.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -73,20 +72,17 @@ const InteractiveBackground: React.FC<Props> = ({ mousePos }) => {
           p.vy -= Math.sin(angle) * force * 2;
         }
 
-        // Return to origin
         const dxOrig = p.originX - p.x;
         const dyOrig = p.originY - p.y;
         p.vx += dxOrig * 0.03;
         p.vy += dyOrig * 0.03;
 
-        // Friction
         p.vx *= 0.9;
         p.vy *= 0.9;
 
         p.x += p.vx;
         p.y += p.vy;
 
-        // Draw
         ctx.fillStyle = p.color;
         ctx.globalAlpha = 0.5;
         ctx.beginPath();
@@ -103,7 +99,6 @@ const InteractiveBackground: React.FC<Props> = ({ mousePos }) => {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      // Fix: Check for null before canceling the animation frame.
       if (animationFrameRef.current !== null) cancelAnimationFrame(animationFrameRef.current);
     };
   }, [mousePos]);
