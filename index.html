@@ -4,13 +4,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Welcome To Dhruv</title>
+    <title>Aura Greeting</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script>
-      // Crucial: Pre-define process for the Gemini SDK
+      // Global error diagnostics
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+        const root = document.getElementById('root');
+        if (root) {
+          root.innerHTML = `<div style="padding: 20px; color: #ff4444; font-family: monospace;">
+            <h2 style="margin: 0 0 10px 0;">Runtime Error</h2>
+            <p>${msg}</p>
+            <small>at ${lineNo}:${columnNo}</small>
+          </div>`;
+        }
+        return false;
+      };
+
+      // Define process shim for browser environment
       window.process = { env: { API_KEY: "" } };
     </script>
     <style>
@@ -51,7 +64,7 @@
     "react": "https://esm.sh/react@19.0.0",
     "react-dom": "https://esm.sh/react-dom@19.0.0",
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "@google/genai": "https://esm.sh/@google/genai@0.2.1",
+    "@google/genai": "https://esm.sh/@google/genai@1.37.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/"
   }
@@ -59,7 +72,9 @@
 </script>
   </head>
   <body class="h-full">
-    <div id="root"></div>
+    <div id="root" class="flex items-center justify-center text-indigo-500/50 font-mono text-xs uppercase tracking-[0.4em]">
+      Synthesizing Reality...
+    </div>
     <script type="module" src="index.tsx"></script>
   </body>
 </html>
