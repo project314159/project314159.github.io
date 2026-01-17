@@ -4,27 +4,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aura Greeting</title>
+    <title>Hey World // Interaction</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script>
-      // Global error diagnostics
+      // Global error diagnostics to catch mounting issues
       window.onerror = function(msg, url, lineNo, columnNo, error) {
         const root = document.getElementById('root');
         if (root) {
-          root.innerHTML = `<div style="padding: 20px; color: #ff4444; font-family: monospace;">
-            <h2 style="margin: 0 0 10px 0;">Runtime Error</h2>
-            <p>${msg}</p>
-            <small>at ${lineNo}:${columnNo}</small>
+          root.innerHTML = `<div style="padding: 40px; color: #f87171; font-family: 'JetBrains Mono', monospace; background: #000; height: 100vh;">
+            <h2 style="font-size: 20px; margin-bottom: 10px;">[System Error]</h2>
+            <p style="opacity: 0.8;">${msg}</p>
+            <p style="font-size: 12px; margin-top: 20px; opacity: 0.5;">Line: ${lineNo} Column: ${columnNo}</p>
           </div>`;
         }
         return false;
       };
-
-      // Define process shim for browser environment
-      window.process = { env: { API_KEY: "" } };
     </script>
     <style>
       body {
@@ -37,14 +34,13 @@
       }
       #root {
         height: 100%;
-        min-height: 100vh;
       }
       .cursor-glow {
         pointer-events: none;
         position: fixed;
-        width: 600px;
-        height: 600px;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.02) 50%, transparent 70%);
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.01) 50%, transparent 70%);
         border-radius: 50%;
         transform: translate(-50%, -50%);
         z-index: 1;
@@ -52,10 +48,10 @@
       }
       @keyframes float {
         0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-15px); }
+        50% { transform: translateY(-10px); }
       }
       .animate-float {
-        animation: float 5s ease-in-out infinite;
+        animation: float 4s ease-in-out infinite;
       }
     </style>
     <script type="importmap">
@@ -64,17 +60,15 @@
     "react": "https://esm.sh/react@19.0.0",
     "react-dom": "https://esm.sh/react-dom@19.0.0",
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "@google/genai": "https://esm.sh/@google/genai@1.37.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/"
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0"
   }
 }
 </script>
   </head>
   <body class="h-full">
-    <div id="root" class="flex items-center justify-center text-indigo-500/50 font-mono text-xs uppercase tracking-[0.4em]">
-      Synthesizing Reality...
-    </div>
+    <div id="root"></div>
     <script type="module" src="index.tsx"></script>
   </body>
 </html>
