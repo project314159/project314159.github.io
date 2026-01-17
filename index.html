@@ -1,6 +1,5 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <script>
+      // Shim process for browser environment to prevent Gemini SDK from crashing
+      window.process = window.process || { env: { API_KEY: "" } };
+    </script>
     <style>
       body {
         font-family: 'Inter', sans-serif;
@@ -16,6 +19,11 @@
         color: #ffffff;
         margin: 0;
         overflow: hidden;
+        height: 100%;
+      }
+      #root {
+        height: 100%;
+        min-height: 100vh;
       }
       .cursor-follower {
         pointer-events: none;
@@ -25,22 +33,35 @@
         background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.05) 50%, transparent 70%);
         border-radius: 50%;
         transform: translate(-50%, -50%);
-        z-index: 0;
-        transition: transform 0.1s ease-out;
+        z-index: 1;
+        transition: transform 0.15s ease-out;
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+      }
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
       }
     </style>
-  <script type="importmap">
+    <script type="importmap">
 {
   "imports": {
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
+    "react": "https://esm.sh/react@19.2.3",
+    "react-dom": "https://esm.sh/react-dom@19.2.3",
+    "react-dom/client": "https://esm.sh/react-dom@19.2.3/client",
+    "@google/genai": "https://esm.sh/@google/genai@1.37.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.37.0"
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
-</head>
-  <body>
-    <div id="root"></div>
+  </head>
+  <body class="h-full">
+    <div id="root" class="flex items-center justify-center text-indigo-500 font-mono text-xs uppercase tracking-widest">
+      Initializing Aura...
+    </div>
+    <!-- Explicitly import the entry point with .tsx extension -->
+    <script type="module" src="index.tsx"></script>
   </body>
 </html>
