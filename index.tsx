@@ -1,7 +1,6 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
-import { GoogleGenAI } from "@google/genai";
 
 // --- Types ---
 interface MousePosition {
@@ -21,21 +20,24 @@ const InteractiveBackground: React.FC<{ mousePos: MousePosition }> = ({ mousePos
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const colors = ['#6366f1', '#a855f7', '#4f46e5', '#312e81'];
+    const colors = ['#6366f1', '#818cf8', '#a855f7', '#4f46e5'];
 
     const init = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      particles.current = Array.from({ length: 100 }).map(() => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        originX: Math.random() * canvas.width,
-        originY: Math.random() * canvas.height,
-        vx: 0,
-        vy: 0,
-        size: Math.random() * 2 + 0.2,
-        color: colors[Math.floor(Math.random() * colors.length)]
-      }));
+      particles.current = Array.from({ length: 150 }).map(() => {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        return {
+          x, y,
+          originX: x,
+          originY: y,
+          vx: 0,
+          vy: 0,
+          size: Math.random() * 2 + 0.5,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        };
+      });
     };
 
     const animate = () => {
@@ -47,19 +49,24 @@ const InteractiveBackground: React.FC<{ mousePos: MousePosition }> = ({ mousePos
         
         if (dist < 180) {
           const force = (180 - dist) / 180;
-          p.vx -= (dx / dist) * force * 1.8;
-          p.vy -= (dy / dist) * force * 1.8;
+          const angle = Math.atan2(dy, dx);
+          p.vx -= Math.cos(angle) * force * 3;
+          p.vy -= Math.sin(angle) * force * 3;
         }
 
-        p.vx += (p.originX - p.x) * 0.015;
-        p.vy += (p.originY - p.y) * 0.015;
-        p.vx *= 0.94;
-        p.vy *= 0.94;
+        // Return to origin
+        p.vx += (p.originX - p.x) * 0.03;
+        p.vy += (p.originY - p.y) * 0.03;
+        
+        // Friction
+        p.vx *= 0.92;
+        p.vy *= 0.92;
+        
         p.x += p.vx;
         p.y += p.vy;
 
         ctx.fillStyle = p.color;
-        ctx.globalAlpha = 0.3;
+        ctx.globalAlpha = 0.35;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
@@ -82,96 +89,93 @@ const InteractiveBackground: React.FC<{ mousePos: MousePosition }> = ({ mousePos
 // --- Main Application ---
 const App: React.FC = () => {
   const [mousePos, setMousePos] = useState<MousePosition>({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-  const [greeting, setGreeting] = useState({ text: "Hey World", loading: false });
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
-
-  const fetchGreeting = async () => {
-    if (greeting.loading) return;
-    setGreeting(prev => ({ ...prev, loading: true }));
-    
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
-      const xRatio = mousePos.x / window.innerWidth;
-      const vibe = xRatio < 0.5 ? "ethereal and whispery" : "neon and glitchy";
-      
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Generate a ultra-short 2-word greeting for the world. Theme: ${vibe}. No punctuation. Be creative.`,
-      });
-
-      const text = response.text || "Hey World";
-      setGreeting({ text: text.trim(), loading: false });
-    } catch (err) {
-      console.error("Gemini Error:", err);
-      setGreeting({ text: "Hello Again", loading: false });
-    }
-  };
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
-      const rX = (e.clientY - window.innerHeight / 2) / 40;
-      const rY = (window.innerWidth / 2 - e.clientX) / 40;
+      
+      // Calculate rotation based on cursor distance from center
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const rX = (e.clientY - centerY) / 30;
+      const rY = (centerX - e.clientX) / 30;
       setRotation({ x: rX, y: rY });
     };
+    
     window.addEventListener('mousemove', handleMove);
     return () => window.removeEventListener('mousemove', handleMove);
   }, []);
 
   return (
-    <div 
-      className="relative w-full h-screen overflow-hidden flex flex-col items-center justify-center bg-[#050505] cursor-none"
-      onClick={fetchGreeting}
-    >
+    <div className="relative w-full h-screen overflow-hidden flex flex-col items-center justify-center bg-[#050505] cursor-none select-none">
       <InteractiveBackground mousePos={mousePos} />
       
+      {/* Dynamic Glow */}
       <div 
         className="cursor-glow" 
         style={{ 
-          transform: `translate(calc(${mousePos.x}px - 50%), calc(${mousePos.y}px - 50%))`
+          left: mousePos.x,
+          top: mousePos.y
         }} 
       />
 
+      {/* Main Content */}
       <div 
-        className="z-10 text-center pointer-events-none transition-transform duration-300 ease-out"
-        style={{ transform: `perspective(1200px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)` }}
+        className="z-10 text-center transition-transform duration-200 ease-out"
+        style={{ 
+          transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)` 
+        }}
       >
-        <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-white animate-float drop-shadow-[0_0_30px_rgba(99,102,241,0.2)]">
-          {greeting.text}
+        <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-white animate-float drop-shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+          Hey World
         </h1>
-        <p className="mt-8 text-indigo-400 font-mono text-[9px] tracking-[1em] uppercase opacity-40">
-          {greeting.loading ? "Synthesizing Node..." : "Initiate consciousness shift // Click"}
-        </p>
+        <div className="mt-4 flex items-center justify-center gap-4 opacity-30">
+          <div className="h-[1px] w-12 bg-indigo-500"></div>
+          <p className="font-mono text-[10px] tracking-[0.6em] uppercase text-indigo-300">
+            Interactive Node v1.0
+          </p>
+          <div className="h-[1px] w-12 bg-indigo-500"></div>
+        </div>
       </div>
 
-      {/* Interface Elements */}
-      <div className="absolute top-10 left-10 z-20 font-mono text-[10px] text-indigo-500/30 uppercase tracking-widest hidden sm:block">
-        V_0.8 // Neural Greeting System
+      {/* Interface Decorations */}
+      <div className="absolute top-10 left-10 z-20 font-mono text-[10px] text-indigo-500/40 uppercase tracking-[0.3em] hidden sm:block">
+        System_Status: Stable
       </div>
       
-      <div className="absolute bottom-10 right-10 z-20 font-mono text-[10px] text-gray-700 tracking-[0.2em] hidden sm:block">
-        X: {Math.round(mousePos.x)} | Y: {Math.round(mousePos.y)}
+      <div className="absolute top-10 right-10 z-20 font-mono text-[10px] text-indigo-500/40 uppercase tracking-[0.3em] hidden sm:block">
+        Latency: 0.2ms
       </div>
 
-      {/* Stylized Crosshair */}
+      {/* User Coordinates */}
+      <div className="absolute bottom-10 left-10 z-20 font-mono text-[9px] text-gray-700 tracking-[0.2em] hidden sm:block">
+        X_{Math.round(mousePos.x).toString().padStart(4, '0')} // Y_{Math.round(mousePos.y).toString().padStart(4, '0')}
+      </div>
+
+      {/* MADE WITH LOVE */}
+      <div className="absolute bottom-10 right-10 z-20 font-mono text-[11px] text-gray-500/80 tracking-widest flex items-center gap-2">
+        <span className="opacity-40 italic">00:00:01</span>
+        <span className="text-gray-400">Made With Love</span>
+        <div className="w-1.5 h-1.5 rounded-full bg-red-500/50 animate-pulse"></div>
+      </div>
+
+      {/* Custom Crosshair */}
       <div 
-        className="fixed w-4 h-4 z-50 pointer-events-none"
-        style={{ left: mousePos.x - 8, top: mousePos.y - 8 }}
+        className="fixed w-6 h-6 z-50 pointer-events-none"
+        style={{ left: mousePos.x - 12, top: mousePos.y - 12 }}
       >
-        <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/40"></div>
-        <div className="absolute left-1/2 top-0 w-[1px] h-full bg-white/40"></div>
+        <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/20"></div>
+        <div className="absolute left-1/2 top-0 w-[1px] h-full bg-white/20"></div>
+        <div className="absolute inset-0 border border-white/5 rounded-full"></div>
       </div>
     </div>
   );
 };
 
-// --- Mount with Error Checking ---
-try {
-  const rootEl = document.getElementById('root');
-  if (rootEl) {
-    const root = ReactDOM.createRoot(rootEl);
-    root.render(<App />);
-  }
-} catch (e) {
-  console.error("Mounting error:", e);
+// --- Mount with standard error handling ---
+const rootEl = document.getElementById('root');
+if (rootEl) {
+  const root = ReactDOM.createRoot(rootEl);
+  root.render(<App />);
 }
