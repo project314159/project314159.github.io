@@ -211,7 +211,7 @@ tr:hover td{background:rgba(200,164,74,.05)}
   <div class="card">
     <div class="card-hd">
       <div class="sdot">1</div>
-      <div><div class="ctitle">Teacher Profile</div><div class="ccap">Your ID links every session together for long-term tracking</div></div>
+      <div><div class="ctitle">Teacher Profile</div></div>
     </div>
     <div class="row">
       <div class="f"><label>Your Name</label><input type="text" id="r_name" placeholder="e.g. Ms. Sarah Ahmed"/></div>
@@ -229,7 +229,7 @@ tr:hover td{background:rgba(200,164,74,.05)}
   <div class="card">
     <div class="card-hd">
       <div class="sdot">2</div>
-      <div><div class="ctitle">Class Details</div><div class="ccap">Which class is this session for?</div></div>
+      <div><div class="ctitle">Class Details</div></div>
     </div>
     <div class="row">
       <div class="f"><label>Class / Subject</label><input type="text" id="r_class" placeholder="e.g. Grade 8 — Physics"/></div>
@@ -240,12 +240,11 @@ tr:hover td{background:rgba(200,164,74,.05)}
   <div class="card">
     <div class="card-hd">
       <div class="sdot">3</div>
-      <div><div class="ctitle">Upload Classroom Recording</div><div class="ccap">MP3, WAV, M4A, OGG — drag & drop or browse</div></div>
+      <div><div class="ctitle">Upload Classroom Recording</div></div>
     </div>
     <div class="upload-zone" id="dropZone">
       <div class="u-icon">🎙</div>
       <div class="u-title">Drop your audio recording here</div>
-      <p class="u-sub">MP3 · WAV · M4A · OGG</p>
       <input type="file" id="audioInput" accept="audio/*" style="display:none" onchange="handleAudio(event)"/>
       <button class="btn-out" onclick="document.getElementById('audioInput').click()">Browse Files</button>
     </div>
@@ -258,7 +257,7 @@ tr:hover td{background:rgba(200,164,74,.05)}
   <div class="card">
     <div class="card-hd">
       <div class="sdot">4</div>
-      <div><div class="ctitle">Get Your AI Review</div><div class="ccap">Prompt is auto-copied — open ChatGPT, attach audio, paste</div></div>
+      <div><div class="ctitle">Get Your AI Review</div></div>
     </div>
     <div class="prompt-wrap">
       <div class="prompt-top">
@@ -287,10 +286,9 @@ CURIOSITY: X/10
 CUMULATIVE: X/10</div>
     </div>
     <button class="btn big" id="chatgptBtn" onclick="openChatGPT()" disabled>
-      <span>✦ Open ChatGPT with Audio</span>
+      <span>✦ Open ChatGPT with Prompt</span>
       <span class="btn-hint" id="chatgptHint">Upload audio first to continue</span>
     </button>
-    <p class="note">ChatGPT opens in a new tab. Attach your audio, paste the prompt, then copy the 4 scores into the <strong>Enter Scores</strong> tab.</p>
   </div>
 </section>
 
@@ -304,7 +302,7 @@ CUMULATIVE: X/10</div>
   <div class="card">
     <div class="card-hd">
       <div class="sdot">①</div>
-      <div><div class="ctitle">Session Info</div><div class="ccap">Confirm teacher and class details for this record</div></div>
+      <div><div class="ctitle">Session Info</div></div>
     </div>
     <div class="row">
       <div class="f"><label>Teacher Name</label><input type="text" id="i_name" placeholder="Ms. Sarah Ahmed"/></div>
@@ -318,26 +316,26 @@ CUMULATIVE: X/10</div>
   <div class="card">
     <div class="card-hd">
       <div class="sdot">②</div>
-      <div><div class="ctitle">ChatGPT Scores</div><div class="ccap">Enter each dimension score out of 10</div></div>
+      <div><div class="ctitle">ChatGPT Scores</div></div>
     </div>
     <div class="scores-grid">
       <div class="sc">
-        <div class="sc-icon">🗣</div><div class="sc-label">Communication</div><div class="sc-desc">Clarity, tone & pacing</div>
+        <div class="sc-icon">🗣</div><div class="sc-label">Communication</div>
         <input type="number" min="0" max="10" step="0.5" placeholder="—" id="s_comm" oninput="updateBar(this,'bc')"/>
         <div class="sbar"><div class="sfill" id="bc"></div></div>
       </div>
       <div class="sc">
-        <div class="sc-icon">🧠</div><div class="sc-label">Understanding</div><div class="sc-desc">Concept accuracy & depth</div>
+        <div class="sc-icon">🧠</div><div class="sc-label">Understanding</div>
         <input type="number" min="0" max="10" step="0.5" placeholder="—" id="s_und" oninput="updateBar(this,'bu')"/>
         <div class="sbar"><div class="sfill" id="bu"></div></div>
       </div>
       <div class="sc">
-        <div class="sc-icon">✨</div><div class="sc-label">Curiosity</div><div class="sc-desc">Student engagement spark</div>
+        <div class="sc-icon">✨</div><div class="sc-label">Curiosity</div>
         <input type="number" min="0" max="10" step="0.5" placeholder="—" id="s_cur" oninput="updateBar(this,'bq')"/>
         <div class="sbar"><div class="sfill" id="bq"></div></div>
       </div>
       <div class="sc">
-        <div class="sc-icon">🔗</div><div class="sc-label">Cumulative</div><div class="sc-desc">Connects past & future</div>
+        <div class="sc-icon">🔗</div><div class="sc-label">Cumulative</div>
         <input type="number" min="0" max="10" step="0.5" placeholder="—" id="s_cum" oninput="updateBar(this,'bm')"/>
         <div class="sbar"><div class="sfill" id="bm"></div></div>
       </div>
@@ -366,7 +364,7 @@ CUMULATIVE: X/10</div>
   <div class="card">
     <div class="card-hd">
       <div class="sdot">⚙</div>
-      <div><div class="ctitle">Filter Options</div><div class="ccap">Narrow by teacher or time period</div></div>
+      <div><div class="ctitle">Filter Options</div></div>
     </div>
     <div class="filter-row">
       <div class="f"><label>Teacher ID (blank = all)</label><input type="text" id="f_id" placeholder="#000001XXX"/></div>
@@ -487,10 +485,11 @@ function processAudio(f){
   document.getElementById('chatgptHint').textContent='Ready — '+f.name;
 }
 
-// CHATGPT
+// CHATGPT — open with prompt pre-filled
 function openChatGPT(){
-  copyPrompt();
-  window.open('https://chatgpt.com/','_blank');
+  const prompt = document.getElementById('promptText').innerText;
+  const encoded = encodeURIComponent(prompt);
+  window.open('https://chatgpt.com/?q=' + encoded, '_blank');
   const name=document.getElementById('r_name').value;
   const id=document.getElementById('r_id_badge').textContent;
   const cls=document.getElementById('r_class').value;
@@ -681,5 +680,9 @@ function renderDash(){
   ]},options:{...base,scales:{y:ax(0,10),x:ax()}}});
 }
 </script>
+<footer style="text-align:center;padding:2rem;font-family:'DM Sans',sans-serif;font-size:13px;color:#7a6e5a;border-top:1px solid #dfd6c3;background:#ece5d6;letter-spacing:.3px">
+  built by dhruv &hearts;
+</footer>
+
 </body>
 </html>
