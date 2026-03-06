@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project 3.14159 — Teaching Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- SheetJS for Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">π<span>3.14159</span></div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" data-tab="record">🎙 Record</button>
+    <button class="tab-btn" data-tab="input">📋 Enter Scores</button>
+    <button class="tab-btn" data-tab="dashboard">📊 Dashboard</button>
+    <button class="tab-btn" data-tab="manage">🗂 Data</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════ TAB 1: RECORD -->
+<section class="tab-content active" id="tab-record">
+  <div class="hero-text">
+    <h1>Teaching<br><em>Intelligence</em><br>Platform</h1>
+    <p class="sub">Upload your classroom audio → Get AI-powered insights from ChatGPT → Log your scores</p>
+  </div>
+
+  <div class="card upload-card">
+    <div class="card-label">STEP 1 — TEACHER PROFILE</div>
+    <div class="field-row">
+      <div class="field">
+        <label>Teacher Name</label>
+        <input type="text" id="teacherName" placeholder="e.g. Ms. Sarah Ahmed" />
+      </div>
+      <div class="field">
+        <label>Your Unique ID <span class="id-badge" id="teacherIdDisplay">—</span></label>
+        <div class="id-controls">
+          <button class="btn-ghost" onclick="generateTeacherId()">Generate New ID</button>
+          <input type="text" id="teacherIdInput" placeholder="Or enter existing ID e.g. #000001XXX" />
+          <button class="btn-ghost" onclick="loadTeacherId()">Load ID</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-label" style="margin-top:2rem">STEP 2 — CLASS DETAILS</div>
+    <div class="field-row">
+      <div class="field">
+        <label>Class / Subject</label>
+        <input type="text" id="className" placeholder="e.g. Grade 8 - Physics" />
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="classDate" />
+      </div>
+    </div>
+
+    <div class="card-label" style="margin-top:2rem">STEP 3 — UPLOAD AUDIO</div>
+    <div class="upload-zone" id="uploadZone">
+      <div class="upload-icon">🎙</div>
+      <p>Drop your classroom recording here</p>
+      <p class="upload-sub">Supports MP3, WAV, M4A, OGG</p>
+      <input type="file" id="audioFile" accept="audio/*" style="display:none" onchange="handleAudioFile(event)"/>
+      <button class="btn-outline" onclick="document.getElementById('audioFile').click()">Browse Files</button>
+    </div>
+    <div id="audioPreview" class="audio-preview" style="display:none">
+      <audio id="audioPlayer" controls></audio>
+      <span id="audioFileName"></span>
+    </div>
+
+    <div class="card-label" style="margin-top:2rem">STEP 4 — REVIEW WITH CHATGPT</div>
+    <div class="prompt-box">
+      <div class="prompt-header">
+        <span>Pre-built Prompt (auto-copied)</span>
+        <button class="btn-copy" onclick="copyPrompt()">📋 Copy</button>
+      </div>
+      <div class="prompt-text" id="promptText">
+Please analyze this classroom audio recording and provide a structured teaching review.
+
+Evaluate the teacher on the following 5 dimensions and score each out of 10:
+
+1. **COMMUNICATION** — Clarity, tone, pacing, use of language
+2. **UNDERSTANDING CONCEPTS** — Accuracy and depth of subject knowledge
+3. **CURIOSITY** — How well the teacher sparked student curiosity and engagement
+4. **CUMULATIVE** — How well the lesson connected to prior and future learning
+
+Also provide:
+- 3 Key Points Noted
+- 2 Problems Identified
+- 3 Things That Were Good
+- An Overall Observation (2-3 sentences)
+
+Format the scores exactly like:
+COMMUNICATION: X/10
+UNDERSTANDING CONCEPTS: X/10
+CURIOSITY: X/10
+CUMULATIVE: X/10
+      </div>
+    </div>
+
+    <button class="btn-primary big" id="openChatGPTBtn" onclick="openChatGPT()" disabled>
+      <span>Open ChatGPT with Audio</span>
+      <span class="btn-hint">Upload audio first</span>
+    </button>
+    <p class="note">⚠ ChatGPT will open in a new tab. Attach your audio file there, paste the prompt, then copy the scores back here.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ TAB 2: ENTER SCORES -->
+<section class="tab-content" id="tab-input">
+  <div class="card">
+    <div class="card-label">ENTER CHATGPT SCORES</div>
+    <p class="card-sub">Paste your Teacher ID, class info, then enter the 4 scores from ChatGPT.</p>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Teacher Name</label>
+        <input type="text" id="inp_teacherName" placeholder="Ms. Sarah Ahmed" />
+      </div>
+      <div class="field">
+        <label>Teacher ID</label>
+        <input type="text" id="inp_teacherId" placeholder="#000001XXX" />
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Class / Subject</label>
+        <input type="text" id="inp_className" placeholder="Grade 8 - Physics" />
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="inp_classDate" />
+      </div>
+    </div>
+
+    <div class="scores-grid">
+      <div class="score-card" data-dim="communication">
+        <div class="score-label">COMMUNICATION</div>
+        <div class="score-desc">Clarity, tone, pacing</div>
+        <input type="number" min="0" max="10" step="0.5" placeholder="0–10" id="score_comm" oninput="updateScoreCard(this,'communication')"/>
+        <div class="score-bar"><div class="score-fill" id="bar_comm"></div></div>
+      </div>
+      <div class="score-card" data-dim="understanding">
+        <div class="score-label">UNDERSTANDING</div>
+        <div class="score-desc">Concept accuracy & depth</div>
+        <input type="number" min="0" max="10" step="0.5" placeholder="0–10" id="score_und" oninput="updateScoreCard(this,'understanding')"/>
+        <div class="score-bar"><div class="score-fill" id="bar_und"></div></div>
+      </div>
+      <div class="score-card" data-dim="curiosity">
+        <div class="score-label">CURIOSITY</div>
+        <div class="score-desc">Student engagement spark</div>
+        <input type="number" min="0" max="10" step="0.5" placeholder="0–10" id="score_cur" oninput="updateScoreCard(this,'curiosity')"/>
+        <div class="score-bar"><div class="score-fill" id="bar_cur"></div></div>
+      </div>
+      <div class="score-card" data-dim="cumulative">
+        <div class="score-label">CUMULATIVE</div>
+        <div class="score-desc">Connects past & future learning</div>
+        <input type="number" min="0" max="10" step="0.5" placeholder="0–10" id="score_cum" oninput="updateScoreCard(this,'cumulative')"/>
+        <div class="score-bar"><div class="score-fill" id="bar_cum"></div></div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:1.5rem">
+      <label>Overall Observation (from ChatGPT)</label>
+      <textarea id="inp_observation" rows="4" placeholder="Paste the overall observation here..."></textarea>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-primary" onclick="saveRecord()">💾 Save Record</button>
+      <div id="saveStatus" class="save-status"></div>
+    </div>
+
+    <div id="subIdDisplay" class="sub-id-display" style="display:none">
+      <span>Record saved as:</span>
+      <strong id="subIdValue"></strong>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ TAB 3: DASHBOARD -->
+<section class="tab-content" id="tab-dashboard">
+  <div class="dashboard-controls card">
+    <div class="card-label">FILTER & VIEW</div>
+    <div class="field-row">
+      <div class="field">
+        <label>Teacher ID (leave blank for all)</label>
+        <input type="text" id="filter_teacherId" placeholder="#000001XXX" />
+      </div>
+      <div class="field">
+        <label>Period</label>
+        <select id="filter_period">
+          <option value="all">All Time</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button class="btn-primary" onclick="renderDashboard()">Generate Graphs</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card wide">
+      <div class="chart-title">Score Trends Over Time</div>
+      <canvas id="chart_trend"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Average by Dimension</div>
+      <canvas id="chart_radar"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Score Distribution</div>
+      <canvas id="chart_bar"></canvas>
+    </div>
+    <div class="chart-card wide">
+      <div class="chart-title">Class Comparison</div>
+      <canvas id="chart_class"></canvas>
+    </div>
+  </div>
+
+  <div id="statsPanel" class="stats-panel card" style="display:none">
+    <div class="stat-box"><div class="stat-label">Sessions Logged</div><div class="stat-val" id="stat_sessions">—</div></div>
+    <div class="stat-box"><div class="stat-label">Avg Communication</div><div class="stat-val" id="stat_comm">—</div></div>
+    <div class="stat-box"><div class="stat-label">Avg Understanding</div><div class="stat-val" id="stat_und">—</div></div>
+    <div class="stat-box"><div class="stat-label">Avg Curiosity</div><div class="stat-val" id="stat_cur">—</div></div>
+    <div class="stat-box"><div class="stat-label">Avg Cumulative</div><div class="stat-val" id="stat_cum">—</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ TAB 4: DATA MANAGEMENT -->
+<section class="tab-content" id="tab-manage">
+  <div class="card">
+    <div class="card-label">DATA MANAGEMENT</div>
+
+    <div class="manage-actions">
+      <button class="btn-primary" onclick="exportExcel()">⬇ Export to Excel</button>
+      <label class="btn-outline import-label">
+        ⬆ Import from Excel
+        <input type="file" id="importFile" accept=".xlsx,.xls" style="display:none" onchange="importExcel(event)"/>
+      </label>
+      <button class="btn-ghost" onclick="clearAllData()">🗑 Clear All Data</button>
+    </div>
+
+    <div id="recordsTable" class="table-wrap">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Sub-ID</th>
+            <th>Teacher</th>
+            <th>Teacher ID</th>
+            <th>Class</th>
+            <th>Date</th>
+            <th>Comm.</th>
+            <th>Underst.</th>
+            <th>Curiosity</th>
+            <th>Cumul.</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div id="emptyState" class="empty-state">No records yet. Start by recording a session!</div>
+    </div>
+  </div>
+</section>
+
+<script src="js/app.js"></script>
+</body>
+</html>
