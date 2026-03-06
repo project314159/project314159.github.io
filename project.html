@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Project 3.14159 — Teaching Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --cream:#f4efe6;--cream2:#ece5d6;--cream3:#dfd6c3;
+  --forest:#1b2e1f;--forest2:#243829;--forest3:#2d4733;
+  --gold:#c8a44a;--gold2:#e6c46a;--gold3:#f0dda0;
+  --rust:#b85c38;--sage:#7a9e82;
+  --ink:#2c2416;--ink2:#4a3f30;--ink3:#7a6e5a;
+  --white:#fdfaf4;
+  --fd:'Playfair Display',Georgia,serif;
+  --fb:'DM Sans',system-ui,sans-serif;
+  --fm:'DM Mono',monospace;
+  --r1:6px;--r2:12px;--r3:20px;
+  --s1:0 1px 4px rgba(44,36,22,.07);
+  --s2:0 4px 20px rgba(44,36,22,.10);
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--cream);color:var(--ink);font-family:var(--fb);font-size:14px;line-height:1.65;min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--cream2)}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:300;background:var(--forest);display:flex;align-items:center;height:62px;box-shadow:0 2px 28px rgba(10,20,12,.45)}
+.nav-brand{display:flex;align-items:center;gap:11px;padding:0 1.75rem;height:100%;border-right:1px solid rgba(200,164,74,.18);flex-shrink:0}
+.nav-pi{font-family:var(--fd);font-size:2rem;font-weight:900;color:var(--gold);line-height:1}
+.nav-wm{display:flex;flex-direction:column;gap:1px}
+.nav-main{font-family:var(--fd);font-size:.8rem;font-weight:700;color:var(--cream);letter-spacing:.2px}
+.nav-sub{font-family:var(--fm);font-size:.58rem;color:var(--sage);letter-spacing:1.8px;text-transform:uppercase}
+.nav-tabs{display:flex;flex:1;height:100%;overflow-x:auto;padding:0 .5rem}
+.tab-btn{display:flex;align-items:center;gap:7px;background:none;border:none;color:rgba(244,239,230,.48);font-family:var(--fb);font-size:13px;font-weight:500;padding:0 1.2rem;height:100%;cursor:pointer;border-bottom:3px solid transparent;transition:color .2s var(--ease),background .2s var(--ease),border-color .2s var(--ease);white-space:nowrap}
+.tab-btn .ti{font-size:14px;transition:transform .2s var(--ease)}
+.tab-btn:hover{color:var(--cream);background:rgba(255,255,255,.04)}
+.tab-btn:hover .ti{transform:scale(1.18) translateY(-1px)}
+.tab-btn.active{color:var(--gold2);border-bottom-color:var(--gold);background:rgba(200,164,74,.07)}
+
+/* LAYOUT */
+.tab-content{display:none;max-width:1040px;margin:0 auto;padding:2.75rem 2rem 5rem;animation:fadeup .28s var(--ease)}
+.tab-content.active{display:block}
+@keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* PAGE HEADER */
+.ph{margin-bottom:2.5rem}
+.ph-eye{display:flex;align-items:center;gap:9px;font-family:var(--fm);font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.55rem}
+.ph-eye::before{content:'';display:inline-block;width:22px;height:1.5px;background:var(--gold)}
+.ph-title{font-family:var(--fd);font-size:clamp(2.2rem,4.5vw,3.8rem);font-weight:900;color:var(--forest);line-height:1.02;letter-spacing:-1.5px}
+.ph-title em{font-style:italic;color:var(--rust)}
+.ph-sub{margin-top:.7rem;color:var(--ink3);font-size:13.5px;max-width:460px;line-height:1.6}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--cream3);border-radius:var(--r3);padding:2rem 2.25rem;margin-bottom:1.5rem;box-shadow:var(--s1);transition:box-shadow .22s var(--ease)}
+.card:hover{box-shadow:var(--s2)}
+.card-hd{display:flex;align-items:center;gap:13px;margin-bottom:1.5rem;padding-bottom:1.1rem;border-bottom:1px solid var(--cream2)}
+.sdot{width:34px;height:34px;border-radius:50%;background:var(--forest);color:var(--gold);font-family:var(--fd);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ctitle{font-family:var(--fd);font-size:1.1rem;font-weight:700;color:var(--forest);letter-spacing:-.3px}
+.ccap{font-size:12.5px;color:var(--ink3);margin-top:2px}
+
+/* FIELDS */
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1.2rem;margin-bottom:1.2rem}
+.f{display:flex;flex-direction:column;gap:6px}
+.f label{font-size:10.5px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink2)}
+input[type=text],input[type=date],input[type=number],select,textarea{background:var(--cream);border:1.5px solid var(--cream3);border-radius:var(--r1);color:var(--ink);font-family:var(--fb);font-size:14px;padding:.65rem .9rem;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);background:var(--white);box-shadow:0 0 0 3px rgba(200,164,74,.13)}
+textarea{resize:vertical;min-height:88px;line-height:1.6}
+select{appearance:none;cursor:pointer}
+input::placeholder,textarea::placeholder{color:var(--ink3);opacity:.55}
+.id-badge{display:inline-flex;align-items:center;background:var(--forest);color:var(--gold2);padding:2px 10px;border-radius:100px;font-family:var(--fm);font-size:11px;letter-spacing:.8px;margin-left:8px;vertical-align:middle}
+.id-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.id-row input{flex:1;min-width:155px}
+
+/* UPLOAD */
+.upload-zone{border:2px dashed var(--cream3);border-radius:var(--r2);padding:2.75rem 2rem;text-align:center;cursor:pointer;background:var(--cream);transition:all .22s var(--ease);position:relative;overflow:hidden;margin-bottom:1rem}
+.upload-zone::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(200,164,74,.09) 0%,transparent 70%);opacity:0;transition:opacity .22s}
+.upload-zone:hover,.upload-zone.over{border-color:var(--gold)}
+.upload-zone:hover::after,.upload-zone.over::after{opacity:1}
+.u-icon{width:62px;height:62px;background:var(--forest);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.1rem;font-size:26px;box-shadow:0 4px 18px rgba(27,46,31,.28);transition:transform .22s var(--ease);position:relative;z-index:1}
+.upload-zone:hover .u-icon{transform:scale(1.08) translateY(-3px)}
+.u-title{font-family:var(--fd);font-size:1.1rem;font-weight:700;color:var(--forest);margin-bottom:5px;position:relative;z-index:1}
+.u-sub{font-size:12px;color:var(--ink3);margin-bottom:1.2rem;position:relative;z-index:1}
+.audio-prev{display:flex;align-items:center;gap:1rem;padding:.8rem 1.1rem;background:var(--cream);border:1.5px solid var(--cream3);border-radius:var(--r1);margin-bottom:1rem}
+.audio-prev audio{flex:1;max-width:380px;height:34px}
+#audioFileName{color:var(--ink3);font-size:11.5px;font-family:var(--fm)}
+
+/* PROMPT */
+.prompt-wrap{border:1.5px solid var(--cream3);border-radius:var(--r2);overflow:hidden;margin-bottom:1.75rem}
+.prompt-top{display:flex;justify-content:space-between;align-items:center;padding:.65rem 1.1rem;background:var(--forest);font-size:11px;color:var(--sage);font-family:var(--fm);letter-spacing:.4px}
+.prompt-body{padding:1.2rem 1.4rem;font-size:12.5px;line-height:1.85;color:var(--ink2);white-space:pre-line;max-height:200px;overflow-y:auto;font-family:var(--fm);background:#faf6ef}
+
+/* BUTTONS */
+button{cursor:pointer;border-radius:var(--r1);transition:all .2s var(--ease);font-family:var(--fb)}
+.btn{background:var(--forest);color:var(--cream);border:none;font-size:13.5px;font-weight:600;padding:.72rem 1.7rem;letter-spacing:.3px;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{background:var(--forest3);transform:translateY(-1px);box-shadow:var(--s2)}
+.btn:active{transform:none}
+.btn:disabled{background:var(--cream3);color:var(--ink3);cursor:not-allowed;transform:none;box-shadow:none}
+.btn.gold{background:var(--gold);color:var(--forest);font-weight:700}
+.btn.gold:hover{background:var(--gold2)}
+.btn.big{width:100%;padding:1.1rem 2rem;font-size:15px;font-weight:700;justify-content:center;flex-direction:column;gap:4px;border-radius:var(--r2)}
+.btn-hint{font-size:11px;font-weight:400;opacity:.6;font-family:var(--fm)}
+.btn-out{background:transparent;color:var(--forest);border:1.5px solid var(--cream3);font-size:13px;font-weight:500;padding:.65rem 1.2rem}
+.btn-out:hover{border-color:var(--gold);background:rgba(200,164,74,.07)}
+.btn-ghost{background:transparent;color:var(--ink3);border:1.5px solid var(--cream3);font-size:12.5px;padding:.52rem .95rem}
+.btn-ghost:hover{color:var(--ink);border-color:var(--ink3);background:var(--cream)}
+.btn-copy{background:rgba(122,158,130,.15);color:var(--sage);border:1px solid rgba(122,158,130,.3);font-family:var(--fm);font-size:11px;padding:3px 12px;border-radius:100px}
+.btn-copy:hover{background:rgba(122,158,130,.28)}
+.import-lbl{display:inline-flex;align-items:center;gap:6px;background:transparent;color:var(--forest);border:1.5px solid var(--cream3);font-family:var(--fb);font-size:13px;font-weight:500;padding:.72rem 1.7rem;cursor:pointer;border-radius:var(--r1);transition:all .2s var(--ease)}
+.import-lbl:hover{border-color:var(--gold);background:rgba(200,164,74,.06)}
+.note{font-size:12px;color:var(--ink3);margin-top:.85rem;padding:.6rem 1rem .6rem 1.25rem;border-left:3px solid var(--gold);background:rgba(200,164,74,.06);border-radius:0 var(--r1) var(--r1) 0;line-height:1.5}
+
+/* SCORE CARDS */
+.scores-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:1.2rem;margin:1.5rem 0}
+.sc{background:var(--cream);border:1.5px solid var(--cream3);border-radius:var(--r2);padding:1.35rem 1.2rem;display:flex;flex-direction:column;gap:.55rem;transition:all .22s var(--ease);position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--cream3);transition:background .22s}
+.sc:focus-within{border-color:var(--gold);background:var(--white);box-shadow:var(--s2)}
+.sc:focus-within::before{background:var(--gold)}
+.sc-icon{font-size:22px;margin-bottom:2px}
+.sc-label{font-family:var(--fd);font-size:.93rem;font-weight:700;color:var(--forest)}
+.sc-desc{font-size:11.5px;color:var(--ink3)}
+.sc input[type=number]{font-family:var(--fd);font-size:2.6rem;font-weight:900;text-align:center;padding:.35rem .5rem;background:var(--white);color:var(--forest);border:1.5px solid var(--cream3);border-radius:var(--r1);letter-spacing:-1px}
+.sc:focus-within input[type=number]{border-color:var(--gold)}
+.sbar{height:5px;background:var(--cream3);border-radius:3px;overflow:hidden;margin-top:4px}
+.sfill{height:100%;width:0%;transition:width .4s var(--ease),background .3s;border-radius:3px;background:var(--gold)}
+.act-row{display:flex;align-items:center;gap:1rem;margin-top:1.7rem;flex-wrap:wrap}
+.save-msg{font-size:13px;color:var(--sage);font-weight:500}
+.subid-banner{margin-top:1rem;padding:.9rem 1.25rem;background:rgba(27,46,31,.04);border:1.5px solid rgba(200,164,74,.3);border-radius:var(--r2);font-size:13px;display:flex;gap:.75rem;align-items:center;color:var(--ink2)}
+.subid-banner strong{font-family:var(--fm);color:var(--forest);font-size:14px;background:var(--gold3);padding:2px 12px;border-radius:100px}
+
+/* DASHBOARD */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+.chart-card{background:var(--white);border:1px solid var(--cream3);border-radius:var(--r3);padding:1.75rem;box-shadow:var(--s1);transition:box-shadow .22s var(--ease)}
+.chart-card:hover{box-shadow:var(--s2)}
+.chart-card.wide{grid-column:1/-1}
+.ct{font-family:var(--fd);font-size:1.05rem;font-weight:700;color:var(--forest);margin-bottom:1.2rem}
+canvas{max-height:260px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:1rem;margin-bottom:1.5rem}
+.sbox{background:var(--white);border:1px solid var(--cream3);border-radius:var(--r2);padding:1.2rem 1rem;text-align:center;box-shadow:var(--s1);transition:all .22s var(--ease)}
+.sbox:hover{transform:translateY(-2px);box-shadow:var(--s2)}
+.slabel{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:.45rem}
+.sval{font-family:var(--fd);font-size:2.2rem;font-weight:900;color:var(--forest);line-height:1}
+.filter-row{display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap}
+.filter-row .f{flex:1;min-width:175px}
+
+/* TABLE */
+.manage-act{display:flex;gap:.75rem;margin-bottom:1.75rem;flex-wrap:wrap;align-items:center}
+.tbl-wrap{overflow-x:auto;border-radius:var(--r2);border:1px solid var(--cream3)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--forest)}
+th{text-align:left;padding:.72rem 1rem;font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--sage);white-space:nowrap}
+td{padding:.68rem 1rem;border-bottom:1px solid var(--cream2);vertical-align:middle;color:var(--ink2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(200,164,74,.05)}
+.mid{font-family:var(--fm);font-size:11px;background:var(--gold3);color:var(--forest);padding:2px 8px;border-radius:100px;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:2px 7px;border-radius:100px;font-size:12px;font-weight:700;font-family:var(--fd)}
+.pill.hi{background:rgba(27,46,31,.09);color:var(--forest)}
+.pill.md{background:rgba(200,164,74,.18);color:#7a5e10}
+.pill.lo{background:rgba(184,92,56,.12);color:var(--rust)}
+.del-btn{background:none;border:1.5px solid rgba(184,92,56,.2);color:var(--rust);font-size:11px;padding:3px 9px;border-radius:var(--r1)}
+.del-btn:hover{background:rgba(184,92,56,.08);border-color:var(--rust)}
+.empty-s{text-align:center;padding:4rem 2rem;color:var(--ink3)}
+.empty-s .ei{font-size:3rem;margin-bottom:1rem;opacity:.3}
+.empty-s p{font-family:var(--fd);font-size:1.1rem;color:var(--ink2);margin-bottom:5px}
+
+@media(max-width:720px){
+  .charts-grid{grid-template-columns:1fr}
+  .chart-card.wide{grid-column:1}
+  nav{height:56px}
+  .nav-brand{padding:0 1rem}
+  .tab-content{padding:1.75rem 1rem 3rem}
+  .card{padding:1.25rem;border-radius:var(--r2)}
+  .ph-title{font-size:2rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <span class="nav-pi">π</span>
+    <div class="nav-wm">
+      <span class="nav-main">Project 3.14159</span>
+      <span class="nav-sub">Teaching Intelligence</span>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" data-tab="record"><span class="ti">🎙</span> Record</button>
+    <button class="tab-btn" data-tab="input"><span class="ti">📋</span> Enter Scores</button>
+    <button class="tab-btn" data-tab="dash"><span class="ti">📊</span> Dashboard</button>
+    <button class="tab-btn" data-tab="data"><span class="ti">🗂</span> Data</button>
+  </div>
+</nav>
+
+<!-- TAB: RECORD -->
+<section class="tab-content active" id="tab-record">
+  <div class="ph">
+    <div class="ph-eye">AI-Powered Teaching Review</div>
+    <h1 class="ph-title">Improve Your<br><em>Teaching</em> with AI</h1>
+    <p class="ph-sub">Upload a classroom recording, send it to ChatGPT for an expert review, then log your scores here.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <div class="sdot">1</div>
+      <div><div class="ctitle">Teacher Profile</div><div class="ccap">Your ID links every session together for long-term tracking</div></div>
+    </div>
+    <div class="row">
+      <div class="f"><label>Your Name</label><input type="text" id="r_name" placeholder="e.g. Ms. Sarah Ahmed"/></div>
+      <div class="f">
+        <label>Unique Teacher ID <span class="id-badge" id="r_id_badge">—</span></label>
+        <div class="id-row">
+          <button class="btn gold" onclick="genId()">✦ Generate ID</button>
+          <input type="text" id="r_id_input" placeholder="Or paste existing ID"/>
+          <button class="btn-ghost" onclick="loadId()">Load</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <div class="sdot">2</div>
+      <div><div class="ctitle">Class Details</div><div class="ccap">Which class is this session for?</div></div>
+    </div>
+    <div class="row">
+      <div class="f"><label>Class / Subject</label><input type="text" id="r_class" placeholder="e.g. Grade 8 — Physics"/></div>
+      <div class="f"><label>Date</label><input type="date" id="r_date"/></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <div class="sdot">3</div>
+      <div><div class="ctitle">Upload Classroom Recording</div><div class="ccap">MP3, WAV, M4A, OGG — drag & drop or browse</div></div>
+    </div>
+    <div class="upload-zone" id="dropZone">
+      <div class="u-icon">🎙</div>
+      <div class="u-title">Drop your audio recording here</div>
+      <p class="u-sub">MP3 · WAV · M4A · OGG</p>
+      <input type="file" id="audioInput" accept="audio/*" style="display:none" onchange="handleAudio(event)"/>
+      <button class="btn-out" onclick="document.getElementById('audioInput').click()">Browse Files</button>
+    </div>
+    <div class="audio-prev" id="audioPrev" style="display:none">
+      <audio id="audioPlayer" controls></audio>
+      <span id="audioFileName"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">
+      <div class="sdot">4</div>
+      <div><div class="ctitle">Get Your AI Review</div><div class="ccap">Prompt is auto-copied — open ChatGPT, attach audio, paste</div></div>
+    </div>
+    <div class="prompt-wrap">
+      <div class="prompt-top">
+        <span>Pre-built ChatGPT Prompt</span>
+        <button class="btn-copy" id="copyBtn" onclick="copyPrompt()">📋 Copy Prompt</button>
+      </div>
+      <div class="prompt-body" id="promptText">Please analyse this classroom audio recording and provide a structured teaching review.
+
+Evaluate the teacher on these 4 dimensions, scoring each out of 10:
+
+1. COMMUNICATION — Clarity, tone, pacing, use of language
+2. UNDERSTANDING CONCEPTS — Accuracy and depth of subject knowledge
+3. CURIOSITY — How well the teacher sparked student curiosity and engagement
+4. CUMULATIVE — How well the lesson connected to prior and future learning
+
+Also provide:
+— 3 Key Points Noted
+— 2 Problems Identified
+— 3 Things That Were Good
+— An Overall Observation (2–3 sentences)
+
+Format scores EXACTLY like this:
+COMMUNICATION: X/10
+UNDERSTANDING CONCEPTS: X/10
+CURIOSITY: X/10
+CUMULATIVE: X/10</div>
+    </div>
+    <button class="btn big" id="chatgptBtn" onclick="openChatGPT()" disabled>
+      <span>✦ Open ChatGPT with Audio</span>
+      <span class="btn-hint" id="chatgptHint">Upload audio first to continue</span>
+    </button>
+    <p class="note">ChatGPT opens in a new tab. Attach your audio, paste the prompt, then copy the 4 scores into the <strong>Enter Scores</strong> tab.</p>
+  </div>
+</section>
+
+<!-- TAB: ENTER SCORES -->
+<section class="tab-content" id="tab-input">
+  <div class="ph">
+    <div class="ph-eye">Log Session</div>
+    <h1 class="ph-title">Enter <em>Scores</em></h1>
+    <p class="ph-sub">Paste the 4 scores from your ChatGPT review. Each session gets a unique Sub-ID for tracking.</p>
+  </div>
+  <div class="card">
+    <div class="card-hd">
+      <div class="sdot">①</div>
+      <div><div class="ctitle">Session Info</div><div class="ccap">Confirm teacher and class details for this record</div></div>
+    </div>
+    <div class="row">
+      <div class="f"><label>Teacher Name</label><input type="text" id="i_name" placeholder="Ms. Sarah Ahmed"/></div>
+      <div class="f"><label>Teacher ID</label><input type="text" id="i_id" placeholder="#000001XXX"/></div>
+    </div>
+    <div class="row">
+      <div class="f"><label>Class / Subject</label><input type="text" id="i_class" placeholder="Grade 8 — Physics"/></div>
+      <div class="f"><label>Date</label><input type="date" id="i_date"/></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd">
+      <div class="sdot">②</div>
+      <div><div class="ctitle">ChatGPT Scores</div><div class="ccap">Enter each dimension score out of 10</div></div>
+    </div>
+    <div class="scores-grid">
+      <div class="sc">
+        <div class="sc-icon">🗣</div><div class="sc-label">Communication</div><div class="sc-desc">Clarity, tone & pacing</div>
+        <input type="number" min="0" max="10" step="0.5" placeholder="—" id="s_comm" oninput="updateBar(this,'bc')"/>
+        <div class="sbar"><div class="sfill" id="bc"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-icon">🧠</div><div class="sc-label">Understanding</div><div class="sc-desc">Concept accuracy & depth</div>
+        <input type="number" min="0" max="10" step="0.5" placeholder="—" id="s_und" oninput="updateBar(this,'bu')"/>
+        <div class="sbar"><div class="sfill" id="bu"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-icon">✨</div><div class="sc-label">Curiosity</div><div class="sc-desc">Student engagement spark</div>
+        <input type="number" min="0" max="10" step="0.5" placeholder="—" id="s_cur" oninput="updateBar(this,'bq')"/>
+        <div class="sbar"><div class="sfill" id="bq"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-icon">🔗</div><div class="sc-label">Cumulative</div><div class="sc-desc">Connects past & future</div>
+        <input type="number" min="0" max="10" step="0.5" placeholder="—" id="s_cum" oninput="updateBar(this,'bm')"/>
+        <div class="sbar"><div class="sfill" id="bm"></div></div>
+      </div>
+    </div>
+    <div class="f" style="margin-top:.5rem">
+      <label>Overall Observation (from ChatGPT)</label>
+      <textarea id="i_obs" placeholder="Paste the overall observation paragraph here…"></textarea>
+    </div>
+    <div class="act-row">
+      <button class="btn" onclick="saveRecord()">💾 Save Record</button>
+      <span class="save-msg" id="saveMsg"></span>
+    </div>
+    <div class="subid-banner" id="subidBanner" style="display:none">
+      <span>✓ Saved as</span><strong id="subidVal"></strong>
+    </div>
+  </div>
+</section>
+
+<!-- TAB: DASHBOARD -->
+<section class="tab-content" id="tab-dash">
+  <div class="ph">
+    <div class="ph-eye">Analytics</div>
+    <h1 class="ph-title"><em>Progress</em> Dashboard</h1>
+    <p class="ph-sub">Visualise your teaching performance across sessions, classes, and time.</p>
+  </div>
+  <div class="card">
+    <div class="card-hd">
+      <div class="sdot">⚙</div>
+      <div><div class="ctitle">Filter Options</div><div class="ccap">Narrow by teacher or time period</div></div>
+    </div>
+    <div class="filter-row">
+      <div class="f"><label>Teacher ID (blank = all)</label><input type="text" id="f_id" placeholder="#000001XXX"/></div>
+      <div class="f"><label>Period</label>
+        <select id="f_period">
+          <option value="all">All Time</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+        </select>
+      </div>
+      <div class="f"><label>&nbsp;</label><button class="btn gold" onclick="renderDash()">✦ Generate Graphs</button></div>
+    </div>
+  </div>
+  <div class="stats" id="statsPanel" style="display:none">
+    <div class="sbox"><div class="slabel">Sessions</div><div class="sval" id="st_s">—</div></div>
+    <div class="sbox"><div class="slabel">Avg Communication</div><div class="sval" id="st_c">—</div></div>
+    <div class="sbox"><div class="slabel">Avg Understanding</div><div class="sval" id="st_u">—</div></div>
+    <div class="sbox"><div class="slabel">Avg Curiosity</div><div class="sval" id="st_q">—</div></div>
+    <div class="sbox"><div class="slabel">Avg Cumulative</div><div class="sval" id="st_m">—</div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card wide"><div class="ct">Score Trends Over Time</div><canvas id="ch_trend"></canvas></div>
+    <div class="chart-card"><div class="ct">Average by Dimension</div><canvas id="ch_radar"></canvas></div>
+    <div class="chart-card"><div class="ct">Distribution Overview</div><canvas id="ch_bar"></canvas></div>
+    <div class="chart-card wide"><div class="ct">Class Comparison</div><canvas id="ch_class"></canvas></div>
+  </div>
+</section>
+
+<!-- TAB: DATA -->
+<section class="tab-content" id="tab-data">
+  <div class="ph">
+    <div class="ph-eye">Records</div>
+    <h1 class="ph-title">Your <em>Data</em></h1>
+    <p class="ph-sub">Export to Excel, import previous data, or manage individual records.</p>
+  </div>
+  <div class="card">
+    <div class="manage-act">
+      <button class="btn" onclick="exportXLSX()">⬇ Export to Excel</button>
+      <label class="import-lbl">⬆ Import Excel<input type="file" id="importFile" accept=".xlsx,.xls" style="display:none" onchange="importXLSX(event)"/></label>
+      <button class="btn-ghost" onclick="clearAll()">🗑 Clear All</button>
+    </div>
+    <div class="tbl-wrap">
+      <table id="dataTable" style="display:none">
+        <thead><tr>
+          <th>Sub-ID</th><th>Teacher</th><th>Teacher ID</th><th>Class</th><th>Date</th>
+          <th>Comm.</th><th>Underst.</th><th>Curiosity</th><th>Cumul.</th><th></th>
+        </tr></thead>
+        <tbody id="tBody"></tbody>
+      </table>
+      <div class="empty-s" id="emptyState">
+        <div class="ei">📋</div>
+        <p>No records yet</p>
+        <small>Record a session and enter scores to get started</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+const SK='p314159_records',IK='p314159_id';
+let charts={},audioFile=null;
+
+// TABS
+document.querySelectorAll('.tab-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+    if(b.dataset.tab==='data') renderTable();
+    if(b.dataset.tab==='dash') renderDash();
+  });
+});
+
+// INIT
+window.addEventListener('DOMContentLoaded',()=>{
+  const sid=localStorage.getItem(IK);
+  if(sid){document.getElementById('r_id_badge').textContent=sid;document.getElementById('r_id_input').value=sid;}
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('r_date').value=today;
+  document.getElementById('i_date').value=today;
+  renderTable();
+  const dz=document.getElementById('dropZone');
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');const f=e.dataTransfer.files[0];if(f)processAudio(f);});
+});
+
+// ID
+function genId(){
+  const n=String(Math.floor(Math.random()*999999)+1).padStart(6,'0');
+  const s=Math.random().toString(36).slice(2,5).toUpperCase();
+  const id='#'+n+s;
+  localStorage.setItem(IK,id);
+  document.getElementById('r_id_badge').textContent=id;
+  document.getElementById('r_id_input').value=id;
+}
+function loadId(){
+  const v=document.getElementById('r_id_input').value.trim();
+  if(!v){alert('Enter a Teacher ID first.');return;}
+  document.getElementById('r_id_badge').textContent=v;
+  localStorage.setItem(IK,v);
+}
+function subId(tid){
+  const mine=getRecords().filter(r=>r.tid===tid);
+  return '#'+tid.replace('#','')+String(mine.length+1).padStart(3,'0');
+}
+
+// AUDIO
+function handleAudio(e){const f=e.target.files[0];if(f)processAudio(f);}
+function processAudio(f){
+  if(!f.type.startsWith('audio/')){alert('Please upload an audio file.');return;}
+  audioFile=f;
+  document.getElementById('audioPlayer').src=URL.createObjectURL(f);
+  document.getElementById('audioFileName').textContent=f.name;
+  document.getElementById('audioPrev').style.display='flex';
+  document.getElementById('chatgptBtn').disabled=false;
+  document.getElementById('chatgptHint').textContent='Ready — '+f.name;
+}
+
+// CHATGPT
+function openChatGPT(){
+  copyPrompt();
+  window.open('https://chatgpt.com/','_blank');
+  const name=document.getElementById('r_name').value;
+  const id=document.getElementById('r_id_badge').textContent;
+  const cls=document.getElementById('r_class').value;
+  const date=document.getElementById('r_date').value;
+  if(name)document.getElementById('i_name').value=name;
+  if(id&&id!=='—')document.getElementById('i_id').value=id;
+  if(cls)document.getElementById('i_class').value=cls;
+  if(date)document.getElementById('i_date').value=date;
+}
+function copyPrompt(){
+  navigator.clipboard.writeText(document.getElementById('promptText').innerText).then(()=>{
+    const b=document.getElementById('copyBtn');
+    b.textContent='✓ Copied!';
+    setTimeout(()=>b.textContent='📋 Copy Prompt',2000);
+  });
+}
+
+// SCORE BARS
+function updateBar(inp,barId){
+  const v=parseFloat(inp.value),bar=document.getElementById(barId);
+  if(!bar||isNaN(v))return;
+  bar.style.width=Math.min(Math.max(v/10*100,0),100)+'%';
+  bar.style.background=v>=8?'#1b2e1f':v>=5?'#c8a44a':'#b85c38';
+}
+
+// DATA
+function getRecords(){try{return JSON.parse(localStorage.getItem(SK))||[];}catch{return[];}}
+function setRecords(r){localStorage.setItem(SK,JSON.stringify(r));}
+function saveRecord(){
+  const name=document.getElementById('i_name').value.trim();
+  const tid=document.getElementById('i_id').value.trim();
+  const cls=document.getElementById('i_class').value.trim();
+  const date=document.getElementById('i_date').value;
+  const comm=parseFloat(document.getElementById('s_comm').value);
+  const und=parseFloat(document.getElementById('s_und').value);
+  const cur=parseFloat(document.getElementById('s_cur').value);
+  const cum=parseFloat(document.getElementById('s_cum').value);
+  const obs=document.getElementById('i_obs').value.trim();
+  if(!name||!tid||!cls||!date){alert('Fill in Teacher Name, ID, Class and Date.');return;}
+  if([comm,und,cur,cum].some(v=>isNaN(v)||v<0||v>10)){alert('All scores must be 0–10.');return;}
+  const recs=getRecords();
+  const sid=subId(tid);
+  recs.push({sid,name,tid,cls,date,comm,und,cur,cum,obs,at:new Date().toISOString()});
+  setRecords(recs);
+  document.getElementById('subidVal').textContent=sid;
+  document.getElementById('subidBanner').style.display='flex';
+  const m=document.getElementById('saveMsg');m.textContent='✓ Record saved!';
+  setTimeout(()=>m.textContent='',3000);
+  ['s_comm','s_und','s_cur','s_cum'].forEach(id=>document.getElementById(id).value='');
+  ['bc','bu','bq','bm'].forEach(id=>document.getElementById(id).style.width='0%');
+  document.getElementById('i_obs').value='';
+  renderTable();
+}
+function deleteRecord(sid){
+  if(!confirm('Delete '+sid+'?'))return;
+  setRecords(getRecords().filter(r=>r.sid!==sid));
+  renderTable();
+}
+function clearAll(){
+  if(!confirm('Delete ALL records? This cannot be undone.'))return;
+  localStorage.removeItem(SK);renderTable();
+}
+
+// TABLE
+function renderTable(){
+  const recs=getRecords();
+  const tbody=document.getElementById('tBody');
+  const tbl=document.getElementById('dataTable');
+  const empty=document.getElementById('emptyState');
+  if(!tbody)return;
+  if(!recs.length){tbl.style.display='none';empty.style.display='block';return;}
+  tbl.style.display='';empty.style.display='none';
+  tbody.innerHTML=recs.map(r=>`<tr>
+    <td><span class="mid">${r.sid}</span></td>
+    <td>${r.name}</td>
+    <td><span class="mid" style="background:rgba(27,46,31,.08)">${r.tid}</span></td>
+    <td>${r.cls}</td><td>${r.date}</td>
+    <td>${pill(r.comm)}</td><td>${pill(r.und)}</td><td>${pill(r.cur)}</td><td>${pill(r.cum)}</td>
+    <td><button class="del-btn" onclick="deleteRecord('${r.sid}')">✕</button></td>
+  </tr>`).join('');
+}
+function pill(v){
+  const c=v>=8?'hi':v>=5?'md':'lo';
+  return`<span class="pill ${c}">${v}</span>`;
+}
+
+// EXCEL
+function exportXLSX(){
+  const recs=getRecords();
+  if(!recs.length){alert('No records to export.');return;}
+  const wb=XLSX.utils.book_new();
+  const hdr=['Sub-ID','Teacher','Teacher ID','Class','Date','Communication','Understanding','Curiosity','Cumulative','Average','Observation','Created At'];
+  const rows=recs.map(r=>[r.sid,r.name,r.tid,r.cls,r.date,r.comm,r.und,r.cur,r.cum,((r.comm+r.und+r.cur+r.cum)/4).toFixed(2),r.obs,r.at]);
+  const ws=XLSX.utils.aoa_to_sheet([hdr,...rows]);
+  ws['!cols']=[16,18,14,20,12,14,16,12,12,10,40,22].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb,ws,'Records');
+  const tids=[...new Set(recs.map(r=>r.tid))];
+  const sh2=[['Teacher ID','Teacher','Sessions','Avg Comm','Avg Und','Avg Cur','Avg Cum','Overall']];
+  tids.forEach(t=>{
+    const m=recs.filter(r=>r.tid===t);
+    const a=d=>(m.reduce((s,r)=>s+r[d],0)/m.length).toFixed(2);
+    sh2.push([t,m[0].name,m.length,a('comm'),a('und'),a('cur'),a('cum'),((+a('comm')+ +a('und')+ +a('cur')+ +a('cum'))/4).toFixed(2)]);
+  });
+  const ws2=XLSX.utils.aoa_to_sheet(sh2);
+  ws2['!cols']=[16,18,10,12,12,12,12,12].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb,ws2,'Summary');
+  XLSX.writeFile(wb,`project3.14159_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+function importXLSX(e){
+  const f=e.target.files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'array'});
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1});
+      const recs=getRecords();const ex=new Set(recs.map(r=>r.sid));let added=0;
+      rows.slice(1).forEach(row=>{
+        if(row.length<9)return;
+        const[sid,name,tid,cls,date,comm,und,cur,cum,,obs]=row;
+        if(!sid||ex.has(String(sid)))return;
+        recs.push({sid:String(sid),name,tid,cls,date,comm:+comm,und:+und,cur:+cur,cum:+cum,obs:obs||'',at:new Date().toISOString()});
+        added++;
+      });
+      setRecords(recs);renderTable();alert(`Imported ${added} record(s).`);
+    }catch(err){alert('Import failed: '+err.message);}
+  };
+  reader.readAsArrayBuffer(f);e.target.value='';
+}
+
+// CHARTS
+const PAL={
+  comm:{b:'#1b2e1f',bg:'rgba(27,46,31,.09)'},
+  und:{b:'#c8a44a',bg:'rgba(200,164,74,.12)'},
+  cur:{b:'#b85c38',bg:'rgba(184,92,56,.12)'},
+  cum:{b:'#7a9e82',bg:'rgba(122,158,130,.12)'},
+};
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function renderDash(){
+  let recs=getRecords();
+  const fid=document.getElementById('f_id').value.trim();
+  const per=document.getElementById('f_period').value;
+  if(fid)recs=recs.filter(r=>r.tid===fid);
+  if(per!=='all'){
+    const now=new Date();
+    recs=recs.filter(r=>{
+      const d=new Date(r.date);
+      if(per==='week'){const s=new Date(now);s.setDate(now.getDate()-7);return d>=s;}
+      if(per==='month')return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+      return true;
+    });
+  }
+  if(!recs.length){alert('No records match your filter.');return;}
+  recs.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const avg=d=>recs.reduce((s,r)=>s+r[d],0)/recs.length;
+  document.getElementById('statsPanel').style.display='grid';
+  document.getElementById('st_s').textContent=recs.length;
+  document.getElementById('st_c').textContent=avg('comm').toFixed(1);
+  document.getElementById('st_u').textContent=avg('und').toFixed(1);
+  document.getElementById('st_q').textContent=avg('cur').toFixed(1);
+  document.getElementById('st_m').textContent=avg('cum').toFixed(1);
+  const base={
+    responsive:true,maintainAspectRatio:true,
+    plugins:{
+      legend:{labels:{color:'#4a3f30',font:{family:"'DM Sans'",size:12},boxWidth:12,padding:14}},
+      tooltip:{backgroundColor:'#1b2e1f',borderColor:'#c8a44a',borderWidth:1,titleColor:'#f4efe6',bodyColor:'#7a9e82',padding:10,cornerRadius:8,titleFont:{family:"'Playfair Display'",size:13},bodyFont:{family:"'DM Mono'",size:11}}
+    }
+  };
+  const ax=(mn,mx)=>{const s={ticks:{color:'#7a6e5a',font:{family:"'DM Mono'",size:11}},grid:{color:'#ece5d6'},border:{color:'#dfd6c3'}};if(mn!==undefined)s.min=mn;if(mx!==undefined)s.max=mx;return s;};
+  destroyChart('trend');
+  charts.trend=new Chart(document.getElementById('ch_trend'),{type:'line',data:{labels:recs.map(r=>r.date),datasets:[
+    {label:'Communication',data:recs.map(r=>r.comm),borderColor:PAL.comm.b,backgroundColor:PAL.comm.bg,tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.comm.b},
+    {label:'Understanding',data:recs.map(r=>r.und),borderColor:PAL.und.b,backgroundColor:PAL.und.bg,tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.und.b},
+    {label:'Curiosity',data:recs.map(r=>r.cur),borderColor:PAL.cur.b,backgroundColor:PAL.cur.bg,tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.cur.b},
+    {label:'Cumulative',data:recs.map(r=>r.cum),borderColor:PAL.cum.b,backgroundColor:PAL.cum.bg,tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.cum.b},
+  ]},options:{...base,scales:{y:ax(0,10),x:ax()}}});
+  destroyChart('radar');
+  charts.radar=new Chart(document.getElementById('ch_radar'),{type:'radar',data:{labels:['Communication','Understanding','Curiosity','Cumulative'],datasets:[{label:'Average',data:[avg('comm'),avg('und'),avg('cur'),avg('cum')],borderColor:'#1b2e1f',backgroundColor:'rgba(27,46,31,.08)',pointBackgroundColor:'#c8a44a',pointBorderColor:'#c8a44a',borderWidth:2,pointRadius:5}]},options:{...base,scales:{r:{min:0,max:10,ticks:{color:'#7a6e5a',stepSize:2,backdropColor:'transparent',font:{family:"'DM Mono'",size:10}},grid:{color:'#dfd6c3'},pointLabels:{color:'#2c2416',font:{family:"'Playfair Display'",size:12,weight:'700'}}}}}});
+  destroyChart('bar');
+  charts.bar=new Chart(document.getElementById('ch_bar'),{type:'bar',data:{labels:['Communication','Understanding','Curiosity','Cumulative'],datasets:[{label:'Average',data:[avg('comm'),avg('und'),avg('cur'),avg('cum')],backgroundColor:['#1b2e1f','#c8a44a','#b85c38','#7a9e82'],borderRadius:6,borderSkipped:false}]},options:{...base,scales:{y:ax(0,10),x:ax()}}});
+  const classes=[...new Set(recs.map(r=>r.cls))];
+  const cb=d=>classes.map(c=>{const s=recs.filter(r=>r.cls===c);return s.reduce((t,r)=>t+r[d],0)/s.length;});
+  destroyChart('class');
+  charts.class=new Chart(document.getElementById('ch_class'),{type:'bar',data:{labels:classes,datasets:[
+    {label:'Communication',data:cb('comm'),backgroundColor:'#1b2e1f',borderRadius:4},
+    {label:'Understanding',data:cb('und'),backgroundColor:'#c8a44a',borderRadius:4},
+    {label:'Curiosity',data:cb('cur'),backgroundColor:'#b85c38',borderRadius:4},
+    {label:'Cumulative',data:cb('cum'),backgroundColor:'#7a9e82',borderRadius:4},
+  ]},options:{...base,scales:{y:ax(0,10),x:ax()}}});
+}
+</script>
+</body>
+</html>
