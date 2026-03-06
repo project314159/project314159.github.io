@@ -1,89 +1,87 @@
 /* ═══════════════════════════════════════
-   PROJECT 3.14159 — App Logic
+   PROsystumm ka logic
 ═══════════════════════════════════════ */
 
-// ── STORAGE KEY ──
 const STORAGE_KEY = 'p314159_records';
-const ID_KEY = 'p314159_teacherId';
+const ID_KEY      = 'p314159_teacherId';
 
 let currentAudioFile = null;
-let chartInstances = {};
+let chartInstances   = {};
 
-// ══════════════════════════════════════════
-// TAB NAVIGATION
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
+// dhoondhooooooo
+// ══════════════════════════════════════
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    if (btn.dataset.tab === 'manage') renderTable();
+    if (btn.dataset.tab === 'manage')    renderTable();
     if (btn.dataset.tab === 'dashboard') renderDashboard();
   });
 });
 
-// ══════════════════════════════════════════
-// TEACHER ID SYSTEM
-// ══════════════════════════════════════════
-function generateTeacherId() {
-  const num = String(Math.floor(Math.random() * 999999) + 1).padStart(6, '0');
-  const suffix = Math.random().toString(36).substring(2, 5).toUpperCase();
-  const id = `#${num}${suffix}`;
-  localStorage.setItem(ID_KEY, id);
-  document.getElementById('teacherIdDisplay').textContent = id;
-  document.getElementById('teacherIdInput').value = id;
-  return id;
-}
-
-function loadTeacherId() {
-  const val = document.getElementById('teacherIdInput').value.trim();
-  if (!val) return alert('Enter a Teacher ID first.');
-  document.getElementById('teacherIdDisplay').textContent = val;
-  localStorage.setItem(ID_KEY, val);
-}
-
-// Generate sub-ID: #000001XXX → #000001XXX001, etc.
-function generateSubId(teacherId) {
-  const records = getRecords();
-  const mine = records.filter(r => r.teacherId === teacherId);
-  const seq = String(mine.length + 1).padStart(3, '0');
-  const base = teacherId.replace('#', '');
-  return `#${base}${seq}`;
-}
-
-// Init stored ID on load
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
   const stored = localStorage.getItem(ID_KEY);
   if (stored) {
     document.getElementById('teacherIdDisplay').textContent = stored;
     document.getElementById('teacherIdInput').value = stored;
   }
-  // Set date fields to today
   const today = new Date().toISOString().split('T')[0];
-  document.getElementById('classDate').value = today;
+  document.getElementById('classDate').value   = today;
   document.getElementById('inp_classDate').value = today;
 
   renderTable();
 
   // Drag & drop
   const zone = document.getElementById('uploadZone');
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('dragover'); });
   zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
   zone.addEventListener('drop', e => {
-    e.preventDefault();
-    zone.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file) processAudioFile(file);
+    e.preventDefault(); zone.classList.remove('dragover');
+    const f = e.dataTransfer.files[0];
+    if (f) processAudioFile(f);
   });
 });
 
-// ══════════════════════════════════════════
-// AUDIO HANDLING
-// ══════════════════════════════════════════
-function handleAudioFile(event) {
-  const file = event.target.files[0];
-  if (file) processAudioFile(file);
+// ══════════════════════════════════════
+// asli teacher ki pehchaan 
+// ══════════════════════════════════════
+function generateTeacherId() {
+  const num    = String(Math.floor(Math.random() * 999999) + 1).padStart(6, '0');
+  const suffix = Math.random().toString(36).substring(2, 5).toUpperCase();
+  const id     = `#${num}${suffix}`;
+  localStorage.setItem(ID_KEY, id);
+  document.getElementById('teacherIdDisplay').textContent = id;
+  document.getElementById('teacherIdInput').value         = id;
+  return id;
+}
+
+function loadTeacherId() {
+  const val = document.getElementById('teacherIdInput').value.trim();
+  if (!val) { alert('Enter a Teacher ID first.'); return; }
+  document.getElementById('teacherIdDisplay').textContent = val;
+  localStorage.setItem(ID_KEY, val);
+}
+
+function generateSubId(teacherId) {
+  const records = getRecords();
+  const mine    = records.filter(r => r.teacherId === teacherId);
+  const seq     = String(mine.length + 1).padStart(3, '0');
+  const base    = teacherId.replace('#', '');
+  return `#${base}${seq}`;
+}
+
+// ══════════════════════════════════════
+// awaaz aane do
+// ══════════════════════════════════════
+function handleAudioFile(e) {
+  const f = e.target.files[0];
+  if (f) processAudioFile(f);
 }
 
 function processAudioFile(file) {
@@ -93,33 +91,31 @@ function processAudioFile(file) {
   }
   currentAudioFile = file;
   const url = URL.createObjectURL(file);
-  document.getElementById('audioPlayer').src = url;
+  document.getElementById('audioPlayer').src    = url;
   document.getElementById('audioFileName').textContent = file.name;
   document.getElementById('audioPreview').style.display = 'flex';
 
-  const btn = document.getElementById('openChatGPTBtn');
-  btn.disabled = false;
-  btn.querySelector('.btn-hint').textContent = file.name;
+  const btn  = document.getElementById('openChatGPTBtn');
+  const hint = document.getElementById('chatgptBtnHint');
+  btn.disabled  = false;
+  hint.textContent = `Ready — ${file.name}`;
 }
 
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
 // CHATGPT REDIRECT
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
 function openChatGPT() {
   copyPrompt();
-  // Open ChatGPT — user will manually attach the audio
   window.open('https://chatgpt.com/', '_blank');
-
-  // Sync fields to score entry tab
+  // Sync fields to score tab
   const name = document.getElementById('teacherName').value;
-  const id = document.getElementById('teacherIdDisplay').textContent;
-  const cls = document.getElementById('className').value;
+  const id   = document.getElementById('teacherIdDisplay').textContent;
+  const cls  = document.getElementById('className').value;
   const date = document.getElementById('classDate').value;
-
   if (name) document.getElementById('inp_teacherName').value = name;
   if (id && id !== '—') document.getElementById('inp_teacherId').value = id;
-  if (cls) document.getElementById('inp_className').value = cls;
-  if (date) document.getElementById('inp_classDate').value = date;
+  if (cls)  document.getElementById('inp_className').value  = cls;
+  if (date) document.getElementById('inp_classDate').value  = date;
 }
 
 function copyPrompt() {
@@ -127,83 +123,67 @@ function copyPrompt() {
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.querySelector('.btn-copy');
     btn.textContent = '✓ Copied!';
-    setTimeout(() => btn.textContent = '📋 Copy', 2000);
+    setTimeout(() => btn.textContent = '📋 Copy Prompt', 2000);
   });
 }
 
-// ══════════════════════════════════════════
-// SCORE CARDS — LIVE BAR UPDATE
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
+// SCORE CARDS
+// ══════════════════════════════════════
 function updateScoreCard(input, dim) {
   const val = parseFloat(input.value);
-  const barMap = { communication: 'bar_comm', understanding: 'bar_und', curiosity: 'bar_cur', cumulative: 'bar_cum' };
-  const bar = document.getElementById(barMap[dim]);
-  if (bar && !isNaN(val)) {
-    const pct = Math.min(Math.max(val / 10 * 100, 0), 100);
-    bar.style.width = pct + '%';
-    // Color by score
-    if (val >= 8) bar.style.background = '#e8ff47';
-    else if (val >= 5) bar.style.background = '#47c8ff';
-    else bar.style.background = '#ff6b47';
-  }
+  const bar = document.getElementById('bar_' + dim);
+  if (!bar || isNaN(val)) return;
+  const pct = Math.min(Math.max(val / 10 * 100, 0), 100);
+  bar.style.width = pct + '%';
+  bar.style.background = val >= 8 ? '#1a2e1e' : val >= 5 ? '#c9a84c' : '#b85c38';
 }
 
-// ══════════════════════════════════════════
-// DATA — CRUD
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
+// DATA CRUD
+// ══════════════════════════════════════
 function getRecords() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
   catch { return []; }
 }
-
-function saveRecords(records) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-}
+function saveRecords(r) { localStorage.setItem(STORAGE_KEY, JSON.stringify(r)); }
 
 function saveRecord() {
   const teacherName = document.getElementById('inp_teacherName').value.trim();
-  const teacherId = document.getElementById('inp_teacherId').value.trim();
-  const className = document.getElementById('inp_className').value.trim();
-  const classDate = document.getElementById('inp_classDate').value;
+  const teacherId   = document.getElementById('inp_teacherId').value.trim();
+  const className   = document.getElementById('inp_className').value.trim();
+  const classDate   = document.getElementById('inp_classDate').value;
   const comm = parseFloat(document.getElementById('score_comm').value);
-  const und = parseFloat(document.getElementById('score_und').value);
-  const cur = parseFloat(document.getElementById('score_cur').value);
-  const cum = parseFloat(document.getElementById('score_cum').value);
+  const und  = parseFloat(document.getElementById('score_und').value);
+  const cur  = parseFloat(document.getElementById('score_cur').value);
+  const cum  = parseFloat(document.getElementById('score_cum').value);
   const observation = document.getElementById('inp_observation').value.trim();
 
   if (!teacherName || !teacherId || !className || !classDate) {
-    alert('Please fill in Teacher Name, ID, Class, and Date.');
-    return;
+    alert('Please fill in Teacher Name, ID, Class, and Date.'); return;
   }
   if ([comm, und, cur, cum].some(v => isNaN(v) || v < 0 || v > 10)) {
-    alert('All 4 scores must be between 0 and 10.');
-    return;
+    alert('All 4 scores must be between 0 and 10.'); return;
   }
 
   const records = getRecords();
-  const subId = generateSubId(teacherId);
-
-  const record = {
+  const subId   = generateSubId(teacherId);
+  records.push({
     subId, teacherName, teacherId, className, classDate,
     comm, und, cur, cum, observation,
     createdAt: new Date().toISOString()
-  };
-
-  records.push(record);
+  });
   saveRecords(records);
 
-  document.getElementById('subIdValue').textContent = subId;
+  document.getElementById('subIdValue').textContent    = subId;
   document.getElementById('subIdDisplay').style.display = 'flex';
-  document.getElementById('saveStatus').textContent = '✓ Saved successfully!';
-  setTimeout(() => document.getElementById('saveStatus').textContent = '', 3000);
+  const status = document.getElementById('saveStatus');
+  status.textContent = '✓ Record saved successfully';
+  setTimeout(() => status.textContent = '', 3500);
 
   // Reset scores
-  ['score_comm','score_und','score_cur','score_cum'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  ['bar_comm','bar_und','bar_cur','bar_cum'].forEach(id => {
-    document.getElementById(id).style.width = '0%';
-  });
+  ['score_comm','score_und','score_cur','score_cum'].forEach(id => { document.getElementById(id).value = ''; });
+  ['bar_comm','bar_und','bar_cur','bar_cum'].forEach(id => { document.getElementById(id).style.width = '0%'; });
   document.getElementById('inp_observation').value = '';
 
   renderTable();
@@ -211,135 +191,139 @@ function saveRecord() {
 
 function deleteRecord(subId) {
   if (!confirm(`Delete record ${subId}?`)) return;
-  const records = getRecords().filter(r => r.subId !== subId);
-  saveRecords(records);
+  saveRecords(getRecords().filter(r => r.subId !== subId));
   renderTable();
 }
 
 function clearAllData() {
-  if (!confirm('⚠ This will delete ALL records. Are you sure?')) return;
+  if (!confirm('⚠ This will permanently delete ALL records. Are you sure?')) return;
   localStorage.removeItem(STORAGE_KEY);
   renderTable();
 }
 
-// ══════════════════════════════════════════
-// TABLE RENDER
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
+// TABLE
+// ══════════════════════════════════════
 function renderTable() {
-  const records = getRecords();
-  const tbody = document.getElementById('tableBody');
-  const empty = document.getElementById('emptyState');
+  const records  = getRecords();
+  const tbody    = document.getElementById('tableBody');
+  const empty    = document.getElementById('emptyState');
+  const tbl      = document.getElementById('dataTable');
   if (!tbody) return;
 
   if (records.length === 0) {
     tbody.innerHTML = '';
+    tbl.style.display = 'none';
     empty.style.display = 'block';
     return;
   }
+  tbl.style.display = '';
   empty.style.display = 'none';
 
   tbody.innerHTML = records.map(r => `
     <tr>
-      <td><code style="color:var(--accent);font-size:11px">${r.subId}</code></td>
+      <td><span class="mono-id">${r.subId}</span></td>
       <td>${r.teacherName}</td>
-      <td><code style="color:var(--text-dim);font-size:11px">${r.teacherId}</code></td>
+      <td><span class="mono-id" style="background:rgba(26,46,30,0.08)">${r.teacherId}</span></td>
       <td>${r.className}</td>
       <td>${r.classDate}</td>
-      <td>${scorePill(r.comm)}</td>
-      <td>${scorePill(r.und)}</td>
-      <td>${scorePill(r.cur)}</td>
-      <td>${scorePill(r.cum)}</td>
+      <td>${pill(r.comm)}</td>
+      <td>${pill(r.und)}</td>
+      <td>${pill(r.cur)}</td>
+      <td>${pill(r.cum)}</td>
       <td><button class="delete-btn" onclick="deleteRecord('${r.subId}')">✕</button></td>
     </tr>
   `).join('');
 }
 
-function scorePill(v) {
-  const cls = v >= 8 ? '' : v >= 5 ? 'mid' : 'low';
+function pill(v) {
+  const cls = v >= 8 ? 'high' : v >= 5 ? 'mid' : 'low';
   return `<span class="score-pill ${cls}">${v}</span>`;
 }
 
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
 // EXCEL EXPORT
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
 function exportExcel() {
   const records = getRecords();
-  if (records.length === 0) { alert('No records to export.'); return; }
+  if (!records.length) { alert('No records to export.'); return; }
 
+  const wb = XLSX.utils.book_new();
+
+  // Records sheet
   const wsData = [
-    ['Sub-ID', 'Teacher Name', 'Teacher ID', 'Class', 'Date', 'Communication', 'Understanding', 'Curiosity', 'Cumulative', 'Average', 'Observation', 'Created At']
+    ['Sub-ID','Teacher Name','Teacher ID','Class','Date',
+     'Communication','Understanding','Curiosity','Cumulative','Average','Observation','Created At']
   ];
-
   records.forEach(r => {
-    const avg = ((r.comm + r.und + r.cur + r.cum) / 4).toFixed(2);
+    const avg = ((r.comm+r.und+r.cur+r.cum)/4).toFixed(2);
     wsData.push([r.subId, r.teacherName, r.teacherId, r.className, r.classDate,
       r.comm, r.und, r.cur, r.cum, avg, r.observation, r.createdAt]);
   });
-
-  const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-  // Column widths
-  ws['!cols'] = [16,18,14,20,12,14,14,12,12,10,40,22].map(w => ({ wch: w }));
-
+  ws['!cols'] = [16,18,14,20,12,14,16,12,12,10,40,22].map(w => ({ wch:w }));
   XLSX.utils.book_append_sheet(wb, ws, 'Records');
 
   // Summary sheet
   const teachers = [...new Set(records.map(r => r.teacherId))];
-  const summaryData = [['Teacher ID', 'Teacher Name', 'Sessions', 'Avg Comm', 'Avg Understanding', 'Avg Curiosity', 'Avg Cumulative', 'Overall Avg']];
+  const sumData  = [['Teacher ID','Teacher Name','Sessions',
+    'Avg Comm','Avg Understanding','Avg Curiosity','Avg Cumulative','Overall Avg']];
   teachers.forEach(tid => {
     const mine = records.filter(r => r.teacherId === tid);
-    const avg = d => (mine.reduce((s,r) => s+r[d],0)/mine.length).toFixed(2);
-    const overall = ((parseFloat(avg('comm'))+parseFloat(avg('und'))+parseFloat(avg('cur'))+parseFloat(avg('cum')))/4).toFixed(2);
-    summaryData.push([tid, mine[0].teacherName, mine.length, avg('comm'), avg('und'), avg('cur'), avg('cum'), overall]);
+    const a = d => (mine.reduce((s,r) => s+r[d],0)/mine.length).toFixed(2);
+    const overall = ((+a('comm')+ +a('und')+ +a('cur')+ +a('cum'))/4).toFixed(2);
+    sumData.push([tid, mine[0].teacherName, mine.length, a('comm'), a('und'), a('cur'), a('cum'), overall]);
   });
-  const ws2 = XLSX.utils.aoa_to_sheet(summaryData);
-  ws2['!cols'] = [16,18,10,12,18,14,16,14].map(w => ({ wch: w }));
+  const ws2 = XLSX.utils.aoa_to_sheet(sumData);
+  ws2['!cols'] = [16,18,10,12,18,14,16,14].map(w => ({ wch:w }));
   XLSX.utils.book_append_sheet(wb, ws2, 'Summary');
 
-  XLSX.writeFile(wb, `project3.14159_records_${new Date().toISOString().slice(0,10)}.xlsx`);
+  XLSX.writeFile(wb, `project3.14159_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
 // EXCEL IMPORT
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
 function importExcel(event) {
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const wb = XLSX.read(e.target.result, { type: 'array' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      const records = getRecords();
-      const existingIds = new Set(records.map(r => r.subId));
+      const wb   = XLSX.read(e.target.result, { type:'array' });
+      const ws   = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header:1 });
+      const records   = getRecords();
+      const existing  = new Set(records.map(r => r.subId));
       let added = 0;
-
       rows.slice(1).forEach(row => {
         if (row.length < 9) return;
-        const [subId, teacherName, teacherId, className, classDate, comm, und, cur, cum, , observation] = row;
-        if (!subId || existingIds.has(subId)) return;
-        records.push({ subId: String(subId), teacherName, teacherId, className, classDate,
-          comm: Number(comm), und: Number(und), cur: Number(cur), cum: Number(cum),
-          observation: observation || '', createdAt: new Date().toISOString() });
+        const [subId,teacherName,teacherId,className,classDate,comm,und,cur,cum,,observation] = row;
+        if (!subId || existing.has(String(subId))) return;
+        records.push({ subId:String(subId), teacherName, teacherId, className, classDate,
+          comm:+comm, und:+und, cur:+cur, cum:+cum,
+          observation: observation||'', createdAt: new Date().toISOString() });
         added++;
       });
-
       saveRecords(records);
       renderTable();
-      alert(`Imported ${added} new records.`);
-    } catch(err) {
-      alert('Failed to import: ' + err.message);
-    }
+      alert(`Imported ${added} new record(s).`);
+    } catch(err) { alert('Import failed: ' + err.message); }
   };
   reader.readAsArrayBuffer(file);
   event.target.value = '';
 }
 
-// ══════════════════════════════════════════
-// DASHBOARD — CHARTS
-// ══════════════════════════════════════════
+// ══════════════════════════════════════
+// DASHBOARD CHARTS
+// ══════════════════════════════════════
+const PALETTE = {
+  comm: { line:'#1a2e1e', fill:'rgba(26,46,30,0.08)' },
+  und:  { line:'#c9a84c', fill:'rgba(201,168,76,0.10)' },
+  cur:  { line:'#b85c38', fill:'rgba(184,92,56,0.10)' },
+  cum:  { line:'#7a9e82', fill:'rgba(122,158,130,0.10)' },
+};
+
 function destroyChart(id) {
   if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
 }
@@ -347,150 +331,140 @@ function destroyChart(id) {
 function renderDashboard() {
   let records = getRecords();
   const teacherFilter = document.getElementById('filter_teacherId').value.trim();
-  const period = document.getElementById('filter_period').value;
+  const period        = document.getElementById('filter_period').value;
 
   if (teacherFilter) records = records.filter(r => r.teacherId === teacherFilter);
 
-  // Period filter
   if (period !== 'all') {
     const now = new Date();
     records = records.filter(r => {
       const d = new Date(r.classDate);
-      if (period === 'week') {
-        const start = new Date(now); start.setDate(now.getDate() - 7);
-        return d >= start;
-      }
-      if (period === 'month') {
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-      }
+      if (period === 'week') { const s = new Date(now); s.setDate(now.getDate()-7); return d >= s; }
+      if (period === 'month') return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
       return true;
     });
   }
 
-  if (records.length === 0) { alert('No records match your filter.'); return; }
+  if (!records.length) { alert('No records match your filter.'); return; }
+  records.sort((a,b) => new Date(a.classDate)-new Date(b.classDate));
 
-  // Sort by date
-  records.sort((a, b) => new Date(a.classDate) - new Date(b.classDate));
+  const avg = d => records.reduce((s,r) => s+r[d],0) / records.length;
 
-  const COLORS = { comm: '#e8ff47', und: '#47c8ff', cur: '#ff6b47', cum: '#c47fff' };
-
-  // ─ Chart 1: Trend line ─
+  // ── Trend
   destroyChart('trend');
   chartInstances.trend = new Chart(document.getElementById('chart_trend'), {
-    type: 'line',
-    data: {
-      labels: records.map(r => `${r.classDate} (${r.className})`),
-      datasets: [
-        { label: 'Communication', data: records.map(r => r.comm), borderColor: COLORS.comm, backgroundColor: 'rgba(232,255,71,0.08)', tension: 0.4, pointRadius: 4 },
-        { label: 'Understanding', data: records.map(r => r.und), borderColor: COLORS.und, backgroundColor: 'rgba(71,200,255,0.08)', tension: 0.4, pointRadius: 4 },
-        { label: 'Curiosity', data: records.map(r => r.cur), borderColor: COLORS.cur, backgroundColor: 'rgba(255,107,71,0.08)', tension: 0.4, pointRadius: 4 },
-        { label: 'Cumulative', data: records.map(r => r.cum), borderColor: COLORS.cum, backgroundColor: 'rgba(196,127,255,0.08)', tension: 0.4, pointRadius: 4 },
+    type:'line',
+    data:{
+      labels: records.map(r => `${r.classDate}`),
+      datasets:[
+        mkLine('Communication', records.map(r=>r.comm), PALETTE.comm),
+        mkLine('Understanding', records.map(r=>r.und),  PALETTE.und),
+        mkLine('Curiosity',     records.map(r=>r.cur),  PALETTE.cur),
+        mkLine('Cumulative',    records.map(r=>r.cum),  PALETTE.cum),
       ]
     },
-    options: chartOptions('line')
+    options: { ...baseOpts(), scales:{ y:axisStyle(0,10), x:axisStyle() } }
   });
 
-  // ─ Chart 2: Radar ─
-  const avg = d => records.reduce((s,r) => s+r[d],0)/records.length;
+  // ── radar
   destroyChart('radar');
   chartInstances.radar = new Chart(document.getElementById('chart_radar'), {
-    type: 'radar',
-    data: {
-      labels: ['Communication','Understanding','Curiosity','Cumulative'],
-      datasets: [{
-        label: 'Average Score',
-        data: [avg('comm'), avg('und'), avg('cur'), avg('cum')],
-        borderColor: '#e8ff47',
-        backgroundColor: 'rgba(232,255,71,0.15)',
-        pointBackgroundColor: '#e8ff47',
-        borderWidth: 2,
-        pointRadius: 5
+    type:'radar',
+    data:{
+      labels:['Communication','Understanding','Curiosity','Cumulative'],
+      datasets:[{
+        label:'Average', data:[avg('comm'),avg('und'),avg('cur'),avg('cum')],
+        borderColor:'#1a2e1e', backgroundColor:'rgba(26,46,30,0.08)',
+        pointBackgroundColor:'#c9a84c', pointBorderColor:'#c9a84c',
+        borderWidth:2, pointRadius:5
       }]
     },
-    options: {
-      ...chartOptions('radar'),
-      scales: {
-        r: {
-          min: 0, max: 10,
-          ticks: { color: '#7a7a9a', stepSize: 2, backdropColor: 'transparent' },
-          grid: { color: '#2a2a40' },
-          pointLabels: { color: '#e8e8f0', font: { family: "'Space Mono'", size: 11 } }
-        }
-      }
-    }
+    options:{ ...baseOpts(), scales:{ r:{
+      min:0, max:10,
+      ticks:{ color:'#7a6e5a', stepSize:2, backdropColor:'transparent', font:{family:"'DM Mono'",size:10} },
+      grid:{ color:'#dfd6c4' },
+      pointLabels:{ color:'#2c2416', font:{family:"'Playfair Display'",size:12,weight:'700'} }
+    }}}
   });
 
-  // ─ Chart 3: Bar (avg by dim) ─
+  // ── averages
   destroyChart('bar');
   chartInstances.bar = new Chart(document.getElementById('chart_bar'), {
-    type: 'bar',
-    data: {
-      labels: ['Communication','Understanding','Curiosity','Cumulative'],
-      datasets: [{
-        label: 'Average Score',
-        data: [avg('comm'), avg('und'), avg('cur'), avg('cum')],
-        backgroundColor: [COLORS.comm, COLORS.und, COLORS.cur, COLORS.cum],
-        borderRadius: 3,
-        borderSkipped: false
+    type:'bar',
+    data:{
+      labels:['Communication','Understanding','Curiosity','Cumulative'],
+      datasets:[{
+        label:'Average Score',
+        data:[avg('comm'),avg('und'),avg('cur'),avg('cum')],
+        backgroundColor:['#1a2e1e','#c9a84c','#b85c38','#7a9e82'],
+        borderRadius:6, borderSkipped:false
       }]
     },
-    options: { ...chartOptions('bar'), scales: { y: { min: 0, max: 10, ...darkAxisStyle() }, x: { ...darkAxisStyle() } } }
+    options:{ ...baseOpts(), scales:{ y:axisStyle(0,10), x:axisStyle() } }
   });
 
-  // ─ Chart 4: Class comparison ─
+  // ── comparison
   const classes = [...new Set(records.map(r => r.className))];
-  const classBars = dim => classes.map(c => {
-    const sub = records.filter(r => r.className === c);
-    return sub.reduce((s,r) => s+r[dim],0)/sub.length;
+  const classBars = d => classes.map(c => {
+    const sub = records.filter(r => r.className===c);
+    return sub.reduce((s,r)=>s+r[d],0)/sub.length;
   });
-
   destroyChart('class');
   chartInstances.class = new Chart(document.getElementById('chart_class'), {
-    type: 'bar',
-    data: {
+    type:'bar',
+    data:{
       labels: classes,
-      datasets: [
-        { label: 'Communication', data: classBars('comm'), backgroundColor: COLORS.comm, borderRadius: 2 },
-        { label: 'Understanding', data: classBars('und'), backgroundColor: COLORS.und, borderRadius: 2 },
-        { label: 'Curiosity', data: classBars('cur'), backgroundColor: COLORS.cur, borderRadius: 2 },
-        { label: 'Cumulative', data: classBars('cum'), backgroundColor: COLORS.cum, borderRadius: 2 },
+      datasets:[
+        { label:'Communication', data:classBars('comm'), backgroundColor:'#1a2e1e', borderRadius:4 },
+        { label:'Understanding', data:classBars('und'),  backgroundColor:'#c9a84c', borderRadius:4 },
+        { label:'Curiosity',     data:classBars('cur'),  backgroundColor:'#b85c38', borderRadius:4 },
+        { label:'Cumulative',    data:classBars('cum'),  backgroundColor:'#7a9e82', borderRadius:4 },
       ]
     },
-    options: { ...chartOptions('bar'), scales: { y: { min: 0, max: 10, ...darkAxisStyle() }, x: { ...darkAxisStyle() } } }
+    options:{ ...baseOpts(), scales:{ y:axisStyle(0,10), x:axisStyle() } }
   });
 
-  // ─ Stats panel ─
+  // Stats
   document.getElementById('statsPanel').style.display = 'grid';
   document.getElementById('stat_sessions').textContent = records.length;
-  document.getElementById('stat_comm').textContent = avg('comm').toFixed(1);
-  document.getElementById('stat_und').textContent = avg('und').toFixed(1);
-  document.getElementById('stat_cur').textContent = avg('cur').toFixed(1);
-  document.getElementById('stat_cum').textContent = avg('cum').toFixed(1);
+  document.getElementById('stat_comm').textContent     = avg('comm').toFixed(1);
+  document.getElementById('stat_und').textContent      = avg('und').toFixed(1);
+  document.getElementById('stat_cur').textContent      = avg('cur').toFixed(1);
+  document.getElementById('stat_cum').textContent      = avg('cum').toFixed(1);
 }
 
-function chartOptions(type) {
+function mkLine(label, data, pal) {
   return {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: { labels: { color: '#7a7a9a', font: { family: "'Space Mono'", size: 11 }, boxWidth: 12 } },
-      tooltip: {
-        backgroundColor: '#1a1a26',
-        borderColor: '#2a2a40',
-        borderWidth: 1,
-        titleColor: '#e8e8f0',
-        bodyColor: '#7a7a9a',
-        titleFont: { family: "'Space Mono'" },
-        bodyFont: { family: "'Space Mono'" }
+    label, data,
+    borderColor: pal.line, backgroundColor: pal.fill,
+    tension: 0.4, pointRadius: 4, pointHoverRadius: 6,
+    pointBackgroundColor: pal.line, fill: true, borderWidth: 2
+  };
+}
+
+function baseOpts() {
+  return {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{
+      legend:{ labels:{ color:'#4a3f2f', font:{ family:"'DM Sans'", size:12 }, boxWidth:12, padding:16 } },
+      tooltip:{
+        backgroundColor:'#1a2e1e', borderColor:'#c9a84c', borderWidth:1,
+        titleColor:'#f5f0e8', bodyColor:'#7a9e82',
+        titleFont:{ family:"'Playfair Display'", size:13 },
+        bodyFont:{ family:"'DM Mono'", size:11 },
+        padding:10, cornerRadius:8
       }
     }
   };
 }
 
-function darkAxisStyle() {
-  return {
-    ticks: { color: '#7a7a9a', font: { family: "'Space Mono'", size: 11 } },
-    grid: { color: '#1a1a26' },
-    border: { color: '#2a2a40' }
+function axisStyle(min, max) {
+  const s = {
+    ticks:{ color:'#7a6e5a', font:{ family:"'DM Mono'",size:11 } },
+    grid:{ color:'#ede6d8' },
+    border:{ color:'#dfd6c4' }
   };
+  if (min !== undefined) s.min = min;
+  if (max !== undefined) s.max = max;
+  return s;
 }
