@@ -220,12 +220,15 @@ tr:hover td{background:rgba(200,164,74,.05)}
       <div class="f">
         <label>Unique Teacher ID <span class="id-badge" id="r_id_badge">—</span></label>
         <div class="id-row">
-          <button class="btn gold" onclick="genId()">✦ Generate ID</button>
-          <input type="text" id="r_id_input" placeholder="Or paste existing ID"/>
-          <button class="btn-ghost" onclick="loadId()">Load</button>
+          <button class="btn gold" onclick="genId()">✦ New ID</button>
+          <input type="text" id="r_id_input" placeholder="Paste your existing ID here"/>
+          <button class="btn gold" onclick="loadId()">⟳ Load My Data</button>
         </div>
       </div>
     </div>
+    <p style="font-size:12px;color:var(--ink3);margin-top:.75rem;padding:.5rem .75rem;background:var(--cream2);border-radius:var(--r1)">
+      📱 <strong>On a new device?</strong> Paste your Teacher ID above and click <strong>Load My Data</strong> to retrieve all your records from the cloud.
+    </p>
   </div>
 
   <div class="card">
@@ -444,19 +447,25 @@ document.querySelectorAll('.tab-btn').forEach(b=>{
 
 // INIT
 window.addEventListener('DOMContentLoaded',async ()=>{
-  const sid=localStorage.getItem(IK);
-  console.log('Stored Teacher ID:', sid);
-  if(sid){
-    document.getElementById('r_id_badge').textContent=sid;
-    document.getElementById('r_id_input').value=sid;
-    // also pre-fill score tab
-    document.getElementById('i_id').value=sid;
-  }
   const today=new Date().toISOString().slice(0,10);
   document.getElementById('r_date').value=today;
   document.getElementById('i_date').value=today;
-  if(sid && sid!=='—') await loadFromFirebase(sid);
-  else renderTable();
+
+  const sid=localStorage.getItem(IK);
+  console.log('Stored Teacher ID:', sid);
+
+  if(sid && sid!=='—' && sid!=='null'){
+    // returning user — restore ID and load data
+    document.getElementById('r_id_badge').textContent=sid;
+    document.getElementById('r_id_input').value=sid;
+    document.getElementById('i_id').value=sid;
+    await loadFromFirebase(sid);
+  } else {
+    // new device — show the login prompt
+    showStatus('👋 Welcome! Paste your Teacher ID and click "⟳ Load My Data", or generate a new one.','warn');
+    renderTable();
+  }
+
   const dz=document.getElementById('dropZone');
   dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
   dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
@@ -474,10 +483,14 @@ function genId(){
   loadFromFirebase(id);
 }
 function loadId(){
-  const v=document.getElementById('r_id_input').value.trim();
-  if(!v){alert('Enter a Teacher ID first.');return;}
+  let v=document.getElementById('r_id_input').value.trim();
+  if(!v){alert('Paste your Teacher ID first (e.g. #2212992DD)');return;}
+  if(!v.startsWith('#')) v='#'+v; // auto-add # if user forgot it
   document.getElementById('r_id_badge').textContent=v;
+  document.getElementById('r_id_input').value=v;
+  document.getElementById('i_id').value=v;
   localStorage.setItem(IK,v);
+  console.log('ID set to:',v,'→ saved to localStorage');
   loadFromFirebase(v);
 }
 
@@ -558,31 +571,36 @@ function showStatus(msg, type='ok'){
 
 async function loadFromFirebase(tid){
   if(!tid||tid==='—'){_cache=[];renderTable();return;}
-  showStatus(`⟳ Loading data for ${tid}…`,'warn');
+  const key=fbKey(tid);
   const url=fbUrl(tid);
-  console.log('Fetching:',url);
+  console.log('━━━ LOAD DEBUG ━━━');
+  console.log('Input TID :', tid);
+  console.log('FB Key    :', key);
+  console.log('Fetch URL :', url);
+  showStatus(`⟳ Loading data for ${tid}…`,'warn');
   try{
     const res=await fetch(url);
     const text=await res.text();
-    console.log('Firebase response:',res.status, text);
+    console.log('Status    :', res.status);
+    console.log('Response  :', text);
     if(!res.ok){
       showStatus(`✗ Firebase ${res.status}: ${text}`,'err');
       _cache=[];renderTable();return;
     }
     let data;
     try{ data=JSON.parse(text); }catch(e){ data=null; }
-    console.log('Parsed data:', data);
-    // Firebase returns an object of {firebaseKey: record} or null
+    console.log('Parsed    :', data);
     if(data && typeof data==='object' && !Array.isArray(data)){
       _cache=Object.values(data).filter(v=>v && typeof v==='object');
     } else {
       _cache=[];
     }
-    console.log('Cache after load:', _cache);
+    console.log('Records   :', _cache.length, _cache);
+    console.log('━━━━━━━━━━━━━━━━━');
     renderTable();
     showStatus(_cache.length?`✓ Loaded ${_cache.length} record(s)`:'✓ Connected — no records yet','ok');
   }catch(e){
-    console.error('Firebase fetch error:',e);
+    console.error('Fetch error:',e);
     showStatus(`✗ Network error: ${e.message}`,'err');
     _cache=[];renderTable();
   }
