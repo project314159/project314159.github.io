@@ -80,19 +80,6 @@ input::placeholder,textarea::placeholder{color:var(--ink3);opacity:.55}
 .id-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .id-row input{flex:1;min-width:155px}
 
-/* UPLOAD */
-.upload-zone{border:2px dashed var(--cream3);border-radius:var(--r2);padding:2.75rem 2rem;text-align:center;cursor:pointer;background:var(--cream);transition:all .22s var(--ease);position:relative;overflow:hidden;margin-bottom:1rem}
-.upload-zone::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(200,164,74,.09) 0%,transparent 70%);opacity:0;transition:opacity .22s}
-.upload-zone:hover,.upload-zone.over{border-color:var(--gold)}
-.upload-zone:hover::after,.upload-zone.over::after{opacity:1}
-.u-icon{width:62px;height:62px;background:var(--forest);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.1rem;font-size:26px;box-shadow:0 4px 18px rgba(27,46,31,.28);transition:transform .22s var(--ease);position:relative;z-index:1}
-.upload-zone:hover .u-icon{transform:scale(1.08) translateY(-3px)}
-.u-title{font-family:var(--fd);font-size:1.1rem;font-weight:700;color:var(--forest);margin-bottom:5px;position:relative;z-index:1}
-.u-sub{font-size:12px;color:var(--ink3);margin-bottom:1.2rem;position:relative;z-index:1}
-.audio-prev{display:flex;align-items:center;gap:1rem;padding:.8rem 1.1rem;background:var(--cream);border:1.5px solid var(--cream3);border-radius:var(--r1);margin-bottom:1rem}
-.audio-prev audio{flex:1;max-width:380px;height:34px}
-#audioFileName{color:var(--ink3);font-size:11.5px;font-family:var(--fm)}
-
 /* PROMPT */
 .prompt-wrap{border:1.5px solid var(--cream3);border-radius:var(--r2);overflow:hidden;margin-bottom:1.75rem}
 .prompt-top{display:flex;justify-content:space-between;align-items:center;padding:.65rem 1.1rem;background:var(--forest);font-size:11px;color:var(--sage);font-family:var(--fm);letter-spacing:.4px}
@@ -226,9 +213,7 @@ tr:hover td{background:rgba(200,164,74,.05)}
         </div>
       </div>
     </div>
-    <p style="font-size:12px;color:var(--ink3);margin-top:.75rem;padding:.5rem .75rem;background:var(--cream2);border-radius:var(--r1)">
-      📱 <strong>On a new device?</strong> Paste your Teacher ID above and click <strong>Load My Data</strong> to retrieve all your records from the cloud.
-    </p>
+
   </div>
 
   <div class="card">
@@ -245,37 +230,20 @@ tr:hover td{background:rgba(200,164,74,.05)}
   <div class="card">
     <div class="card-hd">
       <div class="sdot">3</div>
-      <div><div class="ctitle">Upload Classroom Recording</div></div>
-    </div>
-    <div class="upload-zone" id="dropZone">
-      <div class="u-icon">🎙</div>
-      <div class="u-title">Drop your audio recording here</div>
-      <input type="file" id="audioInput" accept="audio/*" style="display:none" onchange="handleAudio(event)"/>
-      <button class="btn-out" onclick="document.getElementById('audioInput').click()">Browse Files</button>
-    </div>
-    <div class="audio-prev" id="audioPrev" style="display:none">
-      <audio id="audioPlayer" controls></audio>
-      <span id="audioFileName"></span>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-hd">
-      <div class="sdot">4</div>
       <div><div class="ctitle">Get Your AI Review</div></div>
     </div>
     <div class="prompt-wrap">
       <div class="prompt-top">
-        <span>Pre-built ChatGPT Prompt</span>
-        <button class="btn-copy" id="copyBtn" onclick="copyPrompt()">📋 Copy Prompt</button>
+        <span>Pre-built ChatGPT Prompt — click the button to open with this pre-loaded</span>
+        <button class="btn-copy" id="copyBtn" onclick="copyPrompt()">📋 Copy</button>
       </div>
-      <div class="prompt-body" id="promptText">Please analyse this classroom audio recording and provide a structured teaching review.
+      <div class="prompt-body" id="promptText">Please review my teaching session and provide a structured analysis.
 
-Evaluate the teacher on these 4 dimensions, scoring each out of 10:
+Evaluate me on these 4 dimensions, scoring each out of 10:
 
 1. COMMUNICATION — Clarity, tone, pacing, use of language
 2. UNDERSTANDING CONCEPTS — Accuracy and depth of subject knowledge
-3. CURIOSITY — How well the teacher sparked student curiosity and engagement
+3. CURIOSITY — How well I sparked student curiosity and engagement
 4. CUMULATIVE — How well the lesson connected to prior and future learning
 
 Also provide:
@@ -290,9 +258,9 @@ UNDERSTANDING CONCEPTS: X/10
 CURIOSITY: X/10
 CUMULATIVE: X/10</div>
     </div>
-    <button class="btn big" id="chatgptBtn" onclick="openChatGPT()" disabled>
+    <button class="btn big" id="chatgptBtn" onclick="openChatGPT()">
       <span>✦ Open ChatGPT with Prompt</span>
-      <span class="btn-hint" id="chatgptHint">Upload audio first to continue</span>
+      <span class="btn-hint">Prompt will be pre-filled — just attach your audio there</span>
     </button>
   </div>
 </section>
@@ -430,8 +398,8 @@ CUMULATIVE: X/10</div>
 
 <script>
 const IK='p314159_id';
-let charts={},audioFile=null;
-let _cache=[];  // local cache so UI stays snappy
+let charts={};
+let _cache=[];
 
 // TABS
 document.querySelectorAll('.tab-btn').forEach(b=>{
@@ -462,14 +430,15 @@ window.addEventListener('DOMContentLoaded',async ()=>{
     await loadFromFirebase(sid);
   } else {
     // new device — show the login prompt
-    showStatus('👋 Welcome! Paste your Teacher ID and click "⟳ Load My Data", or generate a new one.','warn');
+
     renderTable();
   }
 
   const dz=document.getElementById('dropZone');
-  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
-  dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
-  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');const f=e.dataTransfer.files[0];if(f)processAudio(f);});
+  if(dz){
+    dz.addEventListener('dragover',e=>{e.preventDefault();});
+    dz.addEventListener('drop',e=>{e.preventDefault();});
+  }
 });
 
 // ID
@@ -480,37 +449,26 @@ function genId(){
   localStorage.setItem(IK,id);
   document.getElementById('r_id_badge').textContent=id;
   document.getElementById('r_id_input').value=id;
+  document.getElementById('i_id').value=id;
   loadFromFirebase(id);
 }
 function loadId(){
   let v=document.getElementById('r_id_input').value.trim();
   if(!v){alert('Paste your Teacher ID first (e.g. #2212992DD)');return;}
-  if(!v.startsWith('#')) v='#'+v; // auto-add # if user forgot it
+  if(!v.startsWith('#')) v='#'+v;
   document.getElementById('r_id_badge').textContent=v;
   document.getElementById('r_id_input').value=v;
   document.getElementById('i_id').value=v;
   localStorage.setItem(IK,v);
-  console.log('ID set to:',v,'→ saved to localStorage');
   loadFromFirebase(v);
 }
 
-// AUDIO
-function handleAudio(e){const f=e.target.files[0];if(f)processAudio(f);}
-function processAudio(f){
-  if(!f.type.startsWith('audio/')){alert('Please upload an audio file.');return;}
-  audioFile=f;
-  document.getElementById('audioPlayer').src=URL.createObjectURL(f);
-  document.getElementById('audioFileName').textContent=f.name;
-  document.getElementById('audioPrev').style.display='flex';
-  document.getElementById('chatgptBtn').disabled=false;
-  document.getElementById('chatgptHint').textContent='Ready — '+f.name;
-}
-
-// CHATGPT — open with prompt pre-filled
+// CHATGPT — opens with prompt pre-filled in the message box
 function openChatGPT(){
-  const prompt = document.getElementById('promptText').innerText;
-  const encoded = encodeURIComponent(prompt);
-  window.open('https://chatgpt.com/?q=' + encoded, '_blank');
+  const prompt=document.getElementById('promptText').innerText;
+  const encoded=encodeURIComponent(prompt);
+  window.open('https://chatgpt.com/?q='+encoded,'_blank');
+  // sync fields to Enter Scores tab
   const name=document.getElementById('r_name').value;
   const id=document.getElementById('r_id_badge').textContent;
   const cls=document.getElementById('r_class').value;
@@ -524,7 +482,7 @@ function copyPrompt(){
   navigator.clipboard.writeText(document.getElementById('promptText').innerText).then(()=>{
     const b=document.getElementById('copyBtn');
     b.textContent='✓ Copied!';
-    setTimeout(()=>b.textContent='📋 Copy Prompt',2000);
+    setTimeout(()=>b.textContent='📋 Copy',2000);
   });
 }
 
