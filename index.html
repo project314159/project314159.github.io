@@ -189,7 +189,7 @@ tr:hover td{background:rgba(200,164,74,.05)}
     <span class="nav-pi">π</span>
     <div class="nav-wm">
       <span class="nav-main">Project 3.14159</span>
-      <span class="nav-sub"> </span>
+      <span class="nav-sub">Teaching Intelligence</span>
     </div>
   </div>
   <div class="nav-tabs">
@@ -445,7 +445,13 @@ document.querySelectorAll('.tab-btn').forEach(b=>{
 // INIT
 window.addEventListener('DOMContentLoaded',async ()=>{
   const sid=localStorage.getItem(IK);
-  if(sid){document.getElementById('r_id_badge').textContent=sid;document.getElementById('r_id_input').value=sid;}
+  console.log('Stored Teacher ID:', sid);
+  if(sid){
+    document.getElementById('r_id_badge').textContent=sid;
+    document.getElementById('r_id_input').value=sid;
+    // also pre-fill score tab
+    document.getElementById('i_id').value=sid;
+  }
   const today=new Date().toISOString().slice(0,10);
   document.getElementById('r_date').value=today;
   document.getElementById('i_date').value=today;
@@ -520,12 +526,15 @@ function updateBar(inp,barId){
 // ── FIREBASE HELPERS ──
 const FB='https://project314159-7b4ea-default-rtdb.firebaseio.com';
 
-// sanitise teacher ID for use as a Firebase key
 function fbKey(tid){
-  return tid.replace(/[^a-zA-Z0-9_-]/g,'_');
+  // Replace # and any other invalid Firebase key chars with _
+  return tid.replace(/[^a-zA-Z0-9]/g,'_');
 }
 function fbUrl(tid){
-  return `${FB}/teachers/${fbKey(tid)}/records.json`;
+  const key=fbKey(tid);
+  const url=`${FB}/teachers/${key}/records.json`;
+  console.log(`fbUrl: tid="${tid}" → key="${key}" → url="${url}"`);
+  return url;
 }
 
 let _statusTimer=null;
@@ -562,13 +571,16 @@ async function loadFromFirebase(tid){
     }
     let data;
     try{ data=JSON.parse(text); }catch(e){ data=null; }
+    console.log('Parsed data:', data);
+    // Firebase returns an object of {firebaseKey: record} or null
     if(data && typeof data==='object' && !Array.isArray(data)){
-      _cache=Object.values(data).filter(Boolean);
+      _cache=Object.values(data).filter(v=>v && typeof v==='object');
     } else {
       _cache=[];
     }
+    console.log('Cache after load:', _cache);
     renderTable();
-    showStatus(_cache.length?`✓ Loaded ${_cache.length} record(s) for ${tid}`:'✓ Connected — no records yet for this ID','ok');
+    showStatus(_cache.length?`✓ Loaded ${_cache.length} record(s)`:'✓ Connected — no records yet','ok');
   }catch(e){
     console.error('Firebase fetch error:',e);
     showStatus(`✗ Network error: ${e.message}`,'err');
