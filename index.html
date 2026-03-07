@@ -424,8 +424,10 @@ CUMULATIVE: X/10</div>
 </section>
 
 <script>
-const SK='p314159_records',IK='p314159_id';
+const IK='p314159_id';
+const FB='https://project314159-7b4ea-default-rtdb.firebaseio.com';
 let charts={},audioFile=null;
+let _cache=[];  // local cache so UI stays snappy
 
 // TABS
 document.querySelectorAll('.tab-btn').forEach(b=>{
@@ -440,13 +442,14 @@ document.querySelectorAll('.tab-btn').forEach(b=>{
 });
 
 // INIT
-window.addEventListener('DOMContentLoaded',()=>{
+window.addEventListener('DOMContentLoaded',async ()=>{
   const sid=localStorage.getItem(IK);
   if(sid){document.getElementById('r_id_badge').textContent=sid;document.getElementById('r_id_input').value=sid;}
   const today=new Date().toISOString().slice(0,10);
   document.getElementById('r_date').value=today;
   document.getElementById('i_date').value=today;
-  renderTable();
+  if(sid && sid!=='—') await loadFromFirebase(sid);
+  else renderTable();
   const dz=document.getElementById('dropZone');
   dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
   dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
@@ -461,16 +464,14 @@ function genId(){
   localStorage.setItem(IK,id);
   document.getElementById('r_id_badge').textContent=id;
   document.getElementById('r_id_input').value=id;
+  loadFromFirebase(id);
 }
 function loadId(){
   const v=document.getElementById('r_id_input').value.trim();
   if(!v){alert('Enter a Teacher ID first.');return;}
   document.getElementById('r_id_badge').textContent=v;
   localStorage.setItem(IK,v);
-}
-function subId(tid){
-  const mine=getRecords().filter(r=>r.tid===tid);
-  return '#'+tid.replace('#','')+String(mine.length+1).padStart(3,'0');
+  loadFromFirebase(v);
 }
 
 // AUDIO
@@ -515,10 +516,53 @@ function updateBar(inp,barId){
   bar.style.background=v>=8?'#1b2e1f':v>=5?'#c8a44a':'#b85c38';
 }
 
-// DATA
-function getRecords(){try{return JSON.parse(localStorage.getItem(SK))||[];}catch{return[];}}
-function setRecords(r){localStorage.setItem(SK,JSON.stringify(r));}
-function saveRecord(){
+// ── FIREBASE HELPERS ──
+function fbKey(tid){ return tid.replace(/[#.$/\[\]]/g,'_'); }
+function fbUrl(tid){ return `${FB}/teachers/${fbKey(tid)}/records.json`; }
+
+function showStatus(msg,color='var(--sage)'){
+  const el=document.getElementById('saveMsg');
+  el.style.color=color; el.textContent=msg;
+  setTimeout(()=>el.textContent='',3500);
+}
+
+async function loadFromFirebase(tid){
+  showStatus('⟳ Loading your data…','var(--gold)');
+  try{
+    const res=await fetch(fbUrl(tid));
+    const data=await res.json();
+    _cache = data ? Object.values(data) : [];
+    renderTable();
+    showStatus('✓ Data loaded','var(--sage)');
+  }catch(e){
+    _cache=[];
+    showStatus('⚠ Could not load data','var(--rust)');
+    renderTable();
+  }
+}
+
+async function pushToFirebase(tid, record){
+  const res=await fetch(fbUrl(tid),{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(record)
+  });
+  if(!res.ok) throw new Error('Firebase write failed');
+}
+
+async function deleteFromFirebase(tid, fbId){
+  const url=`${FB}/teachers/${fbKey(tid)}/records/${fbId}.json`;
+  await fetch(url,{method:'DELETE'});
+}
+
+async function clearTeacherFromFirebase(tid){
+  await fetch(`${FB}/teachers/${fbKey(tid)}/records.json`,{method:'DELETE'});
+}
+
+// ── DATA FUNCTIONS ──
+function getRecords(){ return _cache; }
+
+async function saveRecord(){
   const name=document.getElementById('i_name').value.trim();
   const tid=document.getElementById('i_id').value.trim();
   const cls=document.getElementById('i_class').value.trim();
@@ -530,27 +574,49 @@ function saveRecord(){
   const obs=document.getElementById('i_obs').value.trim();
   if(!name||!tid||!cls||!date){alert('Fill in Teacher Name, ID, Class and Date.');return;}
   if([comm,und,cur,cum].some(v=>isNaN(v)||v<0||v>10)){alert('All scores must be 0–10.');return;}
-  const recs=getRecords();
-  const sid=subId(tid);
-  recs.push({sid,name,tid,cls,date,comm,und,cur,cum,obs,at:new Date().toISOString()});
-  setRecords(recs);
-  document.getElementById('subidVal').textContent=sid;
-  document.getElementById('subidBanner').style.display='flex';
-  const m=document.getElementById('saveMsg');m.textContent='✓ Record saved!';
-  setTimeout(()=>m.textContent='',3000);
-  ['s_comm','s_und','s_cur','s_cum'].forEach(id=>document.getElementById(id).value='');
-  ['bc','bu','bq','bm'].forEach(id=>document.getElementById(id).style.width='0%');
-  document.getElementById('i_obs').value='';
-  renderTable();
+
+  const sid='#'+tid.replace('#','')+String(_cache.length+1).padStart(3,'0');
+  const record={sid,name,tid,cls,date,comm,und,cur,cum,obs,at:new Date().toISOString()};
+
+  showStatus('⟳ Saving…','var(--gold)');
+  try{
+    await pushToFirebase(tid, record);
+    _cache.push(record);
+    document.getElementById('subidVal').textContent=sid;
+    document.getElementById('subidBanner').style.display='flex';
+    showStatus('✓ Saved to cloud!','var(--sage)');
+    ['s_comm','s_und','s_cur','s_cum'].forEach(id=>document.getElementById(id).value='');
+    ['bc','bu','bq','bm'].forEach(id=>document.getElementById(id).style.width='0%');
+    document.getElementById('i_obs').value='';
+    renderTable();
+  }catch(e){
+    showStatus('✗ Save failed — check connection','var(--rust)');
+  }
 }
-function deleteRecord(sid){
+
+async function deleteRecord(sid){
   if(!confirm('Delete '+sid+'?'))return;
-  setRecords(getRecords().filter(r=>r.sid!==sid));
-  renderTable();
+  const tid=document.getElementById('i_id').value.trim()||localStorage.getItem(IK);
+  if(!tid){alert('No Teacher ID set.');return;}
+  // find firebase key by re-fetching
+  try{
+    const res=await fetch(fbUrl(tid));
+    const data=await res.json();
+    if(!data)return;
+    const fbId=Object.keys(data).find(k=>data[k].sid===sid);
+    if(fbId) await deleteFromFirebase(tid,fbId);
+    _cache=_cache.filter(r=>r.sid!==sid);
+    renderTable();
+  }catch(e){ alert('Delete failed.'); }
 }
-function clearAll(){
-  if(!confirm('Delete ALL records? This cannot be undone.'))return;
-  localStorage.removeItem(SK);renderTable();
+
+async function clearAll(){
+  if(!confirm('Delete ALL your records from the cloud? This cannot be undone.'))return;
+  const tid=localStorage.getItem(IK);
+  if(!tid){alert('No Teacher ID found.');return;}
+  await clearTeacherFromFirebase(tid);
+  _cache=[];
+  renderTable();
 }
 
 // TABLE
