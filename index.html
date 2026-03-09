@@ -234,77 +234,90 @@ tr:hover td{background:rgba(200,164,74,.05)}
     </div>
     <div class="prompt-wrap">
       <div class="prompt-top">
-        <span>Pre-built ChatGPT Prompt — click the button to open with this pre-loaded</span>
+        <span>Pre-built Gemini Prompt — click the button to open with this pre-loaded</span>
         <button class="btn-copy" id="copyBtn" onclick="copyPrompt()">📋 Copy</button>
       </div>
-      <div class="prompt-body" id="promptText">AI MASTER PROMPT: Teacher Classroom Evaluation from Audio
+      <div class="prompt-body" id="promptText">This combined evaluation tool merges the pedagogical frameworks of the AI Master Prompt with the specific observational criteria of the Sunbeam Educator reflection sheet. It creates a robust, evidence-based report that balances high-level educational theory with granular classroom practice.
 
-You are an AI Classroom Evaluation Assistant. Your task is to analyze the attached classroom audio recording of a teacher conducting a lesson and generate a structured evaluation report.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPREHENSIVE CLASSROOM OBSERVATION & EVALUATION REPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Teacher Name: ____________________
+Date: ____________________
+Subject / Grade: ____________________
 
-Evaluate the teacher's instructional practices using the following educational frameworks:
-- Howard Gardner – Multiple Intelligences Theory
-- Flipped Classroom Model
-- Inquiry-Based Learning
-- Benjamin Bloom – Bloom's Taxonomy
-- Robert J. Marzano – Marzano's Instructional Framework
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+I. PEDAGOGICAL FRAMEWORK ANALYSIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Instructions for Analysis:
-Carefully analyze the audio transcript and identify evidence of teaching practices, questioning methods, student engagement, explanations, and classroom interaction.
-Evaluate how the teacher demonstrates principles from the listed frameworks.
-Provide clear bullet-point observations under each framework.
-Be objective, concise, and evidence-based.
-Avoid speculation — only evaluate based on what is heard in the audio.
+1. Howard Gardner – Multiple Intelligences
+Evidence of Linguistic, Logical-Mathematical, Visual, Kinesthetic, etc.
+• Observation:
+• Reflection:
 
-STRUCTURED EVALUATION REPORT
+2. Inquiry-Based & Flipped Learning
+Encouragement of prior learning, curiosity, and student-led exploration.
+• Observation:
+• Reflection:
 
-1. Howard Gardner – Multiple Intelligences Theory
-Evaluate whether the teacher addresses different learning styles such as: Linguistic, Logical–mathematical, Visual–spatial, Bodily–kinesthetic, Interpersonal, Intrapersonal.
-Provide 3–5 bullet points describing how the teacher supports (or fails to support) multiple intelligences.
+3. Bloom's Taxonomy & Questioning Style
+Levels of thinking (Recall → Create) and execution of questioning.
+• Question Types: (Open-ended, closed, reasoning, recall)
+• Wait Time Given: (Seconds / Effectiveness)
+• Evidence of Bloom's Levels:
 
-2. Flipped Classroom
-Evaluate if the teacher: Encourages prior learning or revision, Uses class time for discussion/practice/problem solving, Builds on previously learned material.
-Provide 2–4 bullet points of observations.
+4. Marzano's Framework & Instructional Clarity
+Clear objectives, feedback, and engagement strategies.
+• Tone: (Warm, firm, rushed)
+• Pace: (Appropriate, too fast, slow)
+• Instructional Evidence:
 
-3. Inquiry-Based Learning
-Analyze whether the teacher: Asks open-ended questions, Encourages student curiosity, Promotes exploration and discussion, Allows students to think and respond.
-Provide 3–4 bullet points.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+II. CLASSROOM DYNAMICS & MANAGEMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-4. Bloom's Taxonomy
-Identify the levels of thinking the teacher encourages: Remember, Understand, Apply, Analyze, Evaluate, Create.
-Explain which levels are used and how in 3–5 bullet points.
+5. Talk Ratio & Reinforcement
+• Teacher Talk (%):
+• Student Talk (%):
+• Positive Reinforcement: (Praise, encouragement, non-verbal cues)
+• Reflection on Balance:
 
-5. Marzano's Instructional Framework
-Evaluate classroom strategies such as: Clear learning objectives, Feedback and reinforcement, Student engagement, Classroom questioning, Instructional clarity.
-Provide 3–5 bullet points.
+6. Management Cues & Lesson Flow
+• Cues Observed: (Transitions, redirections, routines)
+• Off-task Behaviour:
+• Flow Components: [ ] Intro [ ] Explanation [ ] Guided Practice [ ] Independent [ ] Assessment [ ] Closure
+• Alignment with Plan: Yes / No / Partially
 
-SCORING
+7. Resources & Learning Outcomes
+• Resources Used: (Textbook, IFP, Manipulatives, etc.)
+• Outcomes Achieved:
+• Outcomes Partially / Not Achieved:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+III. SCORING & PERFORMANCE METRICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 Format scores EXACTLY like this:
 COMMUNICATION: X/10
 UNDERSTANDING CONCEPTS: X/10
 CURIOSITY: X/10
 BLOOM'S TAXONOMY: X/10
 USE OF TOOLS: X/10
-CUMULATIVE: X/10
+CUMULATIVE: X/50
 
-ADDITIONAL SUMMARY
-3 Key Points Noted:
-- Point 1
-- Point 2
-- Point 3
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IV. SUMMARY OF STRENGTHS & GROWTH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-2 Problems Identified:
-- Problem 1
-- Problem 2
+The "Glows" (Strengths)
+• Noteworthy Practice: (A specific moment or strategy worth repeating)
 
-3 Things That Were Good:
-- Good thing 1
-- Good thing 2
-- Good thing 3
-
-Overall Observation (2–3 sentences): Provide a brief professional summary of the teacher's overall effectiveness and teaching style.</div>
+The "Grows" (Areas for Improvement)
+• Priority Focus: (The single most impactful change for next lesson)
+• Suggested Strategy:</div>
     </div>
-    <button class="btn big" id="chatgptBtn" onclick="openChatGPT()">
-      <span>✦ Open ChatGPT with Prompt</span>
+    <button class="btn big" id="chatgptBtn" onclick="openGemini()">
+      <span>✦ Open Gemini with Prompt</span>
       <span class="btn-hint">Prompt will be pre-filled — just attach your audio there</span>
     </button>
   </div>
@@ -315,7 +328,7 @@ Overall Observation (2–3 sentences): Provide a brief professional summary of t
   <div class="ph">
     <div class="ph-eye">Log Session</div>
     <h1 class="ph-title">Enter <em>Scores</em></h1>
-    <p class="ph-sub">Paste the 6 scores from your ChatGPT review. Each session gets a unique Sub-ID for tracking.</p>
+    <p class="ph-sub">Paste the 6 scores from your Gemini review. Each session gets a unique Sub-ID for tracking.</p>
   </div>
   <div class="card">
     <div class="card-hd">
@@ -524,11 +537,11 @@ function loadId(){
   loadFromFirebase(v);
 }
 
-// CHATGPT — opens with prompt pre-filled in the message box
-function openChatGPT(){
+// GEMINI — opens with prompt pre-filled
+function openGemini(){
   const prompt=document.getElementById('promptText').innerText;
   const encoded=encodeURIComponent(prompt);
-  window.open('https://chatgpt.com/?q='+encoded,'_blank');
+  window.open('https://gemini.google.com/app?q='+encoded,'_blank');
   // sync fields to Enter Scores tab
   const name=document.getElementById('r_name').value;
   const id=document.getElementById('r_id_badge').textContent;
