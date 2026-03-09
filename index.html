@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Project 3.14159</title>
+<title>Project 3.14159 — Teaching Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -204,16 +204,16 @@ tr:hover td{background:rgba(200,164,74,.05)}
     </div>
     <div class="row">
       <div class="f"><label>Your Name</label><input type="text" id="r_name" placeholder="e.g. Ms. Sarah Ahmed"/></div>
-      <div class="f">
-        <label>Unique Teacher ID <span class="id-badge" id="r_id_badge">—</span></label>
+      <div class="f"><label>Gmail</label><input type="email" id="r_email" placeholder="e.g. sarah@gmail.com"/></div>
+    </div>
+    <div class="f" style="margin-bottom:1rem">
+      <label>Unique Teacher ID <span class="id-badge" id="r_id_badge">—</span></label>
         <div class="id-row">
           <button class="btn gold" onclick="genId()">✦ New ID</button>
           <input type="text" id="r_id_input" placeholder="Paste your existing ID here"/>
           <button class="btn gold" onclick="loadId()">⟳ Load My Data</button>
         </div>
-      </div>
     </div>
-
   </div>
 
   <div class="card">
@@ -237,26 +237,71 @@ tr:hover td{background:rgba(200,164,74,.05)}
         <span>Pre-built ChatGPT Prompt — click the button to open with this pre-loaded</span>
         <button class="btn-copy" id="copyBtn" onclick="copyPrompt()">📋 Copy</button>
       </div>
-      <div class="prompt-body" id="promptText">Please review my teaching session and provide a structured analysis.
+      <div class="prompt-body" id="promptText">AI MASTER PROMPT: Teacher Classroom Evaluation from Audio
 
-Evaluate me on these 4 dimensions, scoring each out of 10:
+You are an AI Classroom Evaluation Assistant. Your task is to analyze the attached classroom audio recording of a teacher conducting a lesson and generate a structured evaluation report.
 
-1. COMMUNICATION — Clarity, tone, pacing, use of language
-2. UNDERSTANDING CONCEPTS — Accuracy and depth of subject knowledge
-3. CURIOSITY — How well I sparked student curiosity and engagement
-4. CUMULATIVE — How well the lesson connected to prior and future learning
+Evaluate the teacher's instructional practices using the following educational frameworks:
+- Howard Gardner – Multiple Intelligences Theory
+- Flipped Classroom Model
+- Inquiry-Based Learning
+- Benjamin Bloom – Bloom's Taxonomy
+- Robert J. Marzano – Marzano's Instructional Framework
 
-Also provide:
-— 3 Key Points Noted
-— 2 Problems Identified
-— 3 Things That Were Good
-— An Overall Observation (2–3 sentences)
+Instructions for Analysis:
+Carefully analyze the audio transcript and identify evidence of teaching practices, questioning methods, student engagement, explanations, and classroom interaction.
+Evaluate how the teacher demonstrates principles from the listed frameworks.
+Provide clear bullet-point observations under each framework.
+Be objective, concise, and evidence-based.
+Avoid speculation — only evaluate based on what is heard in the audio.
 
+STRUCTURED EVALUATION REPORT
+
+1. Howard Gardner – Multiple Intelligences Theory
+Evaluate whether the teacher addresses different learning styles such as: Linguistic, Logical–mathematical, Visual–spatial, Bodily–kinesthetic, Interpersonal, Intrapersonal.
+Provide 3–5 bullet points describing how the teacher supports (or fails to support) multiple intelligences.
+
+2. Flipped Classroom
+Evaluate if the teacher: Encourages prior learning or revision, Uses class time for discussion/practice/problem solving, Builds on previously learned material.
+Provide 2–4 bullet points of observations.
+
+3. Inquiry-Based Learning
+Analyze whether the teacher: Asks open-ended questions, Encourages student curiosity, Promotes exploration and discussion, Allows students to think and respond.
+Provide 3–4 bullet points.
+
+4. Bloom's Taxonomy
+Identify the levels of thinking the teacher encourages: Remember, Understand, Apply, Analyze, Evaluate, Create.
+Explain which levels are used and how in 3–5 bullet points.
+
+5. Marzano's Instructional Framework
+Evaluate classroom strategies such as: Clear learning objectives, Feedback and reinforcement, Student engagement, Classroom questioning, Instructional clarity.
+Provide 3–5 bullet points.
+
+SCORING
 Format scores EXACTLY like this:
 COMMUNICATION: X/10
 UNDERSTANDING CONCEPTS: X/10
 CURIOSITY: X/10
-CUMULATIVE: X/10</div>
+BLOOM'S TAXONOMY: X/10
+USE OF TOOLS: X/10
+CUMULATIVE: X/10
+
+ADDITIONAL SUMMARY
+3 Key Points Noted:
+- Point 1
+- Point 2
+- Point 3
+
+2 Problems Identified:
+- Problem 1
+- Problem 2
+
+3 Things That Were Good:
+- Good thing 1
+- Good thing 2
+- Good thing 3
+
+Overall Observation (2–3 sentences): Provide a brief professional summary of the teacher's overall effectiveness and teaching style.</div>
     </div>
     <button class="btn big" id="chatgptBtn" onclick="openChatGPT()">
       <span>✦ Open ChatGPT with Prompt</span>
@@ -270,7 +315,7 @@ CUMULATIVE: X/10</div>
   <div class="ph">
     <div class="ph-eye">Log Session</div>
     <h1 class="ph-title">Enter <em>Scores</em></h1>
-    <p class="ph-sub">Paste the 4 scores from your ChatGPT review. Each session gets a unique Sub-ID for tracking.</p>
+    <p class="ph-sub">Paste the 6 scores from your ChatGPT review. Each session gets a unique Sub-ID for tracking.</p>
   </div>
   <div class="card">
     <div class="card-hd">
@@ -306,6 +351,16 @@ CUMULATIVE: X/10</div>
         <div class="sc-icon">✨</div><div class="sc-label">Curiosity</div>
         <input type="number" min="0" max="10" step="0.5" placeholder="—" id="s_cur" oninput="updateBar(this,'bq')"/>
         <div class="sbar"><div class="sfill" id="bq"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-icon">🌱</div><div class="sc-label">Bloom's Taxonomy</div>
+        <input type="number" min="0" max="10" step="0.5" placeholder="—" id="s_bloom" oninput="updateBar(this,'bb')"/>
+        <div class="sbar"><div class="sfill" id="bb"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-icon">🛠</div><div class="sc-label">Use of Tools</div>
+        <input type="number" min="0" max="10" step="0.5" placeholder="—" id="s_tools" oninput="updateBar(this,'bt')"/>
+        <div class="sbar"><div class="sfill" id="bt"></div></div>
       </div>
       <div class="sc">
         <div class="sc-icon">🔗</div><div class="sc-label">Cumulative</div>
@@ -356,6 +411,8 @@ CUMULATIVE: X/10</div>
     <div class="sbox"><div class="slabel">Avg Communication</div><div class="sval" id="st_c">—</div></div>
     <div class="sbox"><div class="slabel">Avg Understanding</div><div class="sval" id="st_u">—</div></div>
     <div class="sbox"><div class="slabel">Avg Curiosity</div><div class="sval" id="st_q">—</div></div>
+    <div class="sbox"><div class="slabel">Avg Bloom's</div><div class="sval" id="st_b">—</div></div>
+    <div class="sbox"><div class="slabel">Avg Tools</div><div class="sval" id="st_t">—</div></div>
     <div class="sbox"><div class="slabel">Avg Cumulative</div><div class="sval" id="st_m">—</div></div>
   </div>
   <div class="charts-grid">
@@ -383,7 +440,7 @@ CUMULATIVE: X/10</div>
       <table id="dataTable" style="display:none">
         <thead><tr>
           <th>Sub-ID</th><th>Teacher</th><th>Teacher ID</th><th>Class</th><th>Date</th>
-          <th>Comm.</th><th>Underst.</th><th>Curiosity</th><th>Cumul.</th><th></th>
+          <th>Comm.</th><th>Underst.</th><th>Curiosity</th><th>Bloom's</th><th>Tools</th><th>Cumul.</th><th></th>
         </tr></thead>
         <tbody id="tBody"></tbody>
       </table>
@@ -450,6 +507,10 @@ function genId(){
   document.getElementById('r_id_badge').textContent=id;
   document.getElementById('r_id_input').value=id;
   document.getElementById('i_id').value=id;
+  // save email to firebase profile
+  const email=document.getElementById('r_email').value.trim();
+  const name=document.getElementById('r_name').value.trim();
+  if(email||name) saveProfile(id,name,email);
   loadFromFirebase(id);
 }
 function loadId(){
@@ -600,13 +661,15 @@ async function saveRecord(){
   const comm=parseFloat(document.getElementById('s_comm').value);
   const und=parseFloat(document.getElementById('s_und').value);
   const cur=parseFloat(document.getElementById('s_cur').value);
+  const bloom=parseFloat(document.getElementById('s_bloom').value);
+  const tools=parseFloat(document.getElementById('s_tools').value);
   const cum=parseFloat(document.getElementById('s_cum').value);
   const obs=document.getElementById('i_obs').value.trim();
   if(!name||!tid||!cls||!date){alert('Fill in Teacher Name, ID, Class and Date.');return;}
-  if([comm,und,cur,cum].some(v=>isNaN(v)||v<0||v>10)){alert('All scores must be 0–10.');return;}
+  if([comm,und,cur,bloom,tools,cum].some(v=>isNaN(v)||v<0||v>10)){alert('All scores must be 0–10.');return;}
 
   const sid='#'+tid.replace('#','')+String(_cache.length+1).padStart(3,'0');
-  const record={sid,name,tid,cls,date,comm,und,cur,cum,obs,at:new Date().toISOString()};
+  const record={sid,name,tid,cls,date,comm,und,cur,bloom,tools,cum,obs,at:new Date().toISOString()};
 
   showStatus('⟳ Saving to Firebase…','warn');
   try{
@@ -615,8 +678,8 @@ async function saveRecord(){
     document.getElementById('subidVal').textContent=sid;
     document.getElementById('subidBanner').style.display='flex';
     showStatus(`✓ Saved! Record ${sid} stored in cloud`,'ok');
-    ['s_comm','s_und','s_cur','s_cum'].forEach(id=>document.getElementById(id).value='');
-    ['bc','bu','bq','bm'].forEach(id=>document.getElementById(id).style.width='0%');
+    ['s_comm','s_und','s_cur','s_bloom','s_tools','s_cum'].forEach(id=>document.getElementById(id).value='');
+    ['bc','bu','bq','bb','bt','bm'].forEach(id=>document.getElementById(id).style.width='0%');
     document.getElementById('i_obs').value='';
     renderTable();
   }catch(e){
@@ -667,7 +730,8 @@ function renderTable(){
     <td>${r.name}</td>
     <td><span class="mid" style="background:rgba(27,46,31,.08)">${r.tid}</span></td>
     <td>${r.cls}</td><td>${r.date}</td>
-    <td>${pill(r.comm)}</td><td>${pill(r.und)}</td><td>${pill(r.cur)}</td><td>${pill(r.cum)}</td>
+    <td>${pill(r.comm)}</td><td>${pill(r.und)}</td><td>${pill(r.cur)}</td>
+    <td>${pill(r.bloom??'—')}</td><td>${pill(r.tools??'—')}</td><td>${pill(r.cum)}</td>
     <td><button class="del-btn" onclick="deleteRecord('${r.sid}')">✕</button></td>
   </tr>`).join('');
 }
@@ -676,25 +740,32 @@ function pill(v){
   return`<span class="pill ${c}">${v}</span>`;
 }
 
+async function saveProfile(tid, name, email){
+  const url=`${FB}/teachers/${fbKey(tid)}/profile.json`;
+  await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,createdAt:new Date().toISOString()})});
+}
+
 // EXCEL
 function exportXLSX(){
   const recs=getRecords();
   if(!recs.length){alert('No records to export.');return;}
   const wb=XLSX.utils.book_new();
-  const hdr=['Sub-ID','Teacher','Teacher ID','Class','Date','Communication','Understanding','Curiosity','Cumulative','Average','Observation','Created At'];
-  const rows=recs.map(r=>[r.sid,r.name,r.tid,r.cls,r.date,r.comm,r.und,r.cur,r.cum,((r.comm+r.und+r.cur+r.cum)/4).toFixed(2),r.obs,r.at]);
+  const hdr=['Sub-ID','Teacher','Teacher ID','Class','Date','Communication','Understanding','Curiosity',"Bloom's Taxonomy",'Use of Tools','Cumulative','Average','Observation','Created At'];
+  const rows=recs.map(r=>[r.sid,r.name,r.tid,r.cls,r.date,r.comm,r.und,r.cur,r.bloom||0,r.tools||0,r.cum,
+    ((r.comm+r.und+r.cur+(r.bloom||0)+(r.tools||0)+r.cum)/6).toFixed(2),r.obs,r.at]);
   const ws=XLSX.utils.aoa_to_sheet([hdr,...rows]);
-  ws['!cols']=[16,18,14,20,12,14,16,12,12,10,40,22].map(w=>({wch:w}));
+  ws['!cols']=[16,18,14,20,12,14,16,12,16,14,12,10,40,22].map(w=>({wch:w}));
   XLSX.utils.book_append_sheet(wb,ws,'Records');
   const tids=[...new Set(recs.map(r=>r.tid))];
-  const sh2=[['Teacher ID','Teacher','Sessions','Avg Comm','Avg Und','Avg Cur','Avg Cum','Overall']];
+  const sh2=[['Teacher ID','Teacher','Sessions','Avg Comm','Avg Und','Avg Cur',"Avg Bloom's",'Avg Tools','Avg Cumul','Overall']];
   tids.forEach(t=>{
     const m=recs.filter(r=>r.tid===t);
-    const a=d=>(m.reduce((s,r)=>s+r[d],0)/m.length).toFixed(2);
-    sh2.push([t,m[0].name,m.length,a('comm'),a('und'),a('cur'),a('cum'),((+a('comm')+ +a('und')+ +a('cur')+ +a('cum'))/4).toFixed(2)]);
+    const a=d=>(m.reduce((s,r)=>s+(r[d]||0),0)/m.length).toFixed(2);
+    sh2.push([t,m[0].name,m.length,a('comm'),a('und'),a('cur'),a('bloom'),a('tools'),a('cum'),
+      ((+a('comm')+ +a('und')+ +a('cur')+ +a('bloom')+ +a('tools')+ +a('cum'))/6).toFixed(2)]);
   });
   const ws2=XLSX.utils.aoa_to_sheet(sh2);
-  ws2['!cols']=[16,18,10,12,12,12,12,12].map(w=>({wch:w}));
+  ws2['!cols']=[16,18,10,12,12,12,14,12,12,12].map(w=>({wch:w}));
   XLSX.utils.book_append_sheet(wb,ws2,'Summary');
   XLSX.writeFile(wb,`project3.14159_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
@@ -721,10 +792,12 @@ function importXLSX(e){
 
 // CHARTS
 const PAL={
-  comm:{b:'#1b2e1f',bg:'rgba(27,46,31,.09)'},
-  und:{b:'#c8a44a',bg:'rgba(200,164,74,.12)'},
-  cur:{b:'#b85c38',bg:'rgba(184,92,56,.12)'},
-  cum:{b:'#7a9e82',bg:'rgba(122,158,130,.12)'},
+  comm: {b:'#1b2e1f',bg:'rgba(27,46,31,.09)'},
+  und:  {b:'#c8a44a',bg:'rgba(200,164,74,.12)'},
+  cur:  {b:'#b85c38',bg:'rgba(184,92,56,.12)'},
+  bloom:{b:'#6a4c93',bg:'rgba(106,76,147,.10)'},
+  tools:{b:'#1a7a6e',bg:'rgba(26,122,110,.10)'},
+  cum:  {b:'#7a9e82',bg:'rgba(122,158,130,.12)'},
 };
 function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
 function renderDash(){
@@ -743,13 +816,17 @@ function renderDash(){
   }
   if(!recs.length){alert('No records match your filter.');return;}
   recs.sort((a,b)=>new Date(a.date)-new Date(b.date));
-  const avg=d=>recs.reduce((s,r)=>s+r[d],0)/recs.length;
+  const avg=d=>recs.reduce((s,r)=>s+(r[d]||0),0)/recs.length;
+
   document.getElementById('statsPanel').style.display='grid';
   document.getElementById('st_s').textContent=recs.length;
   document.getElementById('st_c').textContent=avg('comm').toFixed(1);
   document.getElementById('st_u').textContent=avg('und').toFixed(1);
   document.getElementById('st_q').textContent=avg('cur').toFixed(1);
+  document.getElementById('st_b').textContent=avg('bloom').toFixed(1);
+  document.getElementById('st_t').textContent=avg('tools').toFixed(1);
   document.getElementById('st_m').textContent=avg('cum').toFixed(1);
+
   const base={
     responsive:true,maintainAspectRatio:true,
     plugins:{
@@ -758,25 +835,52 @@ function renderDash(){
     }
   };
   const ax=(mn,mx)=>{const s={ticks:{color:'#7a6e5a',font:{family:"'DM Mono'",size:11}},grid:{color:'#ece5d6'},border:{color:'#dfd6c3'}};if(mn!==undefined)s.min=mn;if(mx!==undefined)s.max=mx;return s;};
+
+  // Trend — all 6 lines
   destroyChart('trend');
   charts.trend=new Chart(document.getElementById('ch_trend'),{type:'line',data:{labels:recs.map(r=>r.date),datasets:[
-    {label:'Communication',data:recs.map(r=>r.comm),borderColor:PAL.comm.b,backgroundColor:PAL.comm.bg,tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.comm.b},
-    {label:'Understanding',data:recs.map(r=>r.und),borderColor:PAL.und.b,backgroundColor:PAL.und.bg,tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.und.b},
-    {label:'Curiosity',data:recs.map(r=>r.cur),borderColor:PAL.cur.b,backgroundColor:PAL.cur.bg,tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.cur.b},
-    {label:'Cumulative',data:recs.map(r=>r.cum),borderColor:PAL.cum.b,backgroundColor:PAL.cum.bg,tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.cum.b},
+    {label:'Communication', data:recs.map(r=>r.comm),  borderColor:PAL.comm.b, backgroundColor:PAL.comm.bg, tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.comm.b},
+    {label:'Understanding', data:recs.map(r=>r.und),   borderColor:PAL.und.b,  backgroundColor:PAL.und.bg,  tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.und.b},
+    {label:'Curiosity',     data:recs.map(r=>r.cur),   borderColor:PAL.cur.b,  backgroundColor:PAL.cur.bg,  tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.cur.b},
+    {label:"Bloom's",       data:recs.map(r=>r.bloom||0),borderColor:PAL.bloom.b,backgroundColor:PAL.bloom.bg,tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.bloom.b},
+    {label:'Use of Tools',  data:recs.map(r=>r.tools||0),borderColor:PAL.tools.b,backgroundColor:PAL.tools.bg,tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.tools.b},
+    {label:'Cumulative',    data:recs.map(r=>r.cum),   borderColor:PAL.cum.b,  backgroundColor:PAL.cum.bg,  tension:.4,pointRadius:4,fill:true,borderWidth:2,pointBackgroundColor:PAL.cum.b},
   ]},options:{...base,scales:{y:ax(0,10),x:ax()}}});
+
+  // Radar — all 6 axes
   destroyChart('radar');
-  charts.radar=new Chart(document.getElementById('ch_radar'),{type:'radar',data:{labels:['Communication','Understanding','Curiosity','Cumulative'],datasets:[{label:'Average',data:[avg('comm'),avg('und'),avg('cur'),avg('cum')],borderColor:'#1b2e1f',backgroundColor:'rgba(27,46,31,.08)',pointBackgroundColor:'#c8a44a',pointBorderColor:'#c8a44a',borderWidth:2,pointRadius:5}]},options:{...base,scales:{r:{min:0,max:10,ticks:{color:'#7a6e5a',stepSize:2,backdropColor:'transparent',font:{family:"'DM Mono'",size:10}},grid:{color:'#dfd6c3'},pointLabels:{color:'#2c2416',font:{family:"'Playfair Display'",size:12,weight:'700'}}}}}});
+  charts.radar=new Chart(document.getElementById('ch_radar'),{type:'radar',data:{
+    labels:['Communication','Understanding','Curiosity',"Bloom's",'Use of Tools','Cumulative'],
+    datasets:[{label:'Average',
+      data:[avg('comm'),avg('und'),avg('cur'),avg('bloom'),avg('tools'),avg('cum')],
+      borderColor:'#1b2e1f',backgroundColor:'rgba(27,46,31,.08)',
+      pointBackgroundColor:'#c8a44a',pointBorderColor:'#c8a44a',borderWidth:2,pointRadius:5}]
+  },options:{...base,scales:{r:{min:0,max:10,
+    ticks:{color:'#7a6e5a',stepSize:2,backdropColor:'transparent',font:{family:"'DM Mono'",size:10}},
+    grid:{color:'#dfd6c3'},
+    pointLabels:{color:'#2c2416',font:{family:"'Playfair Display'",size:11,weight:'700'}}}}}});
+
+  // Bar — all 6
   destroyChart('bar');
-  charts.bar=new Chart(document.getElementById('ch_bar'),{type:'bar',data:{labels:['Communication','Understanding','Curiosity','Cumulative'],datasets:[{label:'Average',data:[avg('comm'),avg('und'),avg('cur'),avg('cum')],backgroundColor:['#1b2e1f','#c8a44a','#b85c38','#7a9e82'],borderRadius:6,borderSkipped:false}]},options:{...base,scales:{y:ax(0,10),x:ax()}}});
+  charts.bar=new Chart(document.getElementById('ch_bar'),{type:'bar',data:{
+    labels:['Comm.','Underst.','Curiosity',"Bloom's",'Tools','Cumul.'],
+    datasets:[{label:'Average',
+      data:[avg('comm'),avg('und'),avg('cur'),avg('bloom'),avg('tools'),avg('cum')],
+      backgroundColor:['#1b2e1f','#c8a44a','#b85c38','#6a4c93','#1a7a6e','#7a9e82'],
+      borderRadius:6,borderSkipped:false}]
+  },options:{...base,scales:{y:ax(0,10),x:ax()}}});
+
+  // Class comparison — all 6
   const classes=[...new Set(recs.map(r=>r.cls))];
-  const cb=d=>classes.map(c=>{const s=recs.filter(r=>r.cls===c);return s.reduce((t,r)=>t+r[d],0)/s.length;});
+  const cb=d=>classes.map(c=>{const s=recs.filter(r=>r.cls===c);return s.reduce((t,r)=>t+(r[d]||0),0)/s.length;});
   destroyChart('class');
   charts.class=new Chart(document.getElementById('ch_class'),{type:'bar',data:{labels:classes,datasets:[
-    {label:'Communication',data:cb('comm'),backgroundColor:'#1b2e1f',borderRadius:4},
-    {label:'Understanding',data:cb('und'),backgroundColor:'#c8a44a',borderRadius:4},
-    {label:'Curiosity',data:cb('cur'),backgroundColor:'#b85c38',borderRadius:4},
-    {label:'Cumulative',data:cb('cum'),backgroundColor:'#7a9e82',borderRadius:4},
+    {label:'Communication', data:cb('comm'),  backgroundColor:'#1b2e1f',borderRadius:4},
+    {label:'Understanding', data:cb('und'),   backgroundColor:'#c8a44a',borderRadius:4},
+    {label:'Curiosity',     data:cb('cur'),   backgroundColor:'#b85c38',borderRadius:4},
+    {label:"Bloom's",       data:cb('bloom'), backgroundColor:'#6a4c93',borderRadius:4},
+    {label:'Use of Tools',  data:cb('tools'), backgroundColor:'#1a7a6e',borderRadius:4},
+    {label:'Cumulative',    data:cb('cum'),   backgroundColor:'#7a9e82',borderRadius:4},
   ]},options:{...base,scales:{y:ax(0,10),x:ax()}}});
 }
 </script>
