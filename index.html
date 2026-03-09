@@ -192,9 +192,9 @@ tr:hover td{background:rgba(200,164,74,.05)}
 
 <section class="tab-content active" id="tab-record">
   <div class="ph">
-    <div class="ph-eye">Intelligent Teaching Review, for Sunbeam</div>
+    <div class="ph-eye">AI-Powered Teaching Review</div>
     <h1 class="ph-title">Improve Your<br><em>Teaching</em> with AI</h1>
-    <p class="ph-sub">Upload a classroom recording, send it to Gemini for an expert review, then log your scores here.</p>
+    <p class="ph-sub">Upload a classroom recording, send it to ChatGPT for an expert review, then log your scores here.</p>
   </div>
 
   <div class="card">
@@ -303,7 +303,7 @@ UNDERSTANDING CONCEPTS: X/10
 CURIOSITY: X/10
 BLOOM'S TAXONOMY: X/10
 USE OF TOOLS: X/10
-CUMULATIVE: X/10
+CUMULATIVE: X/50
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 IV. SUMMARY OF STRENGTHS & GROWTH
@@ -318,7 +318,7 @@ The "Grows" (Areas for Improvement)
     </div>
     <button class="btn big" id="chatgptBtn" onclick="openGemini()">
       <span>✦ Open Gemini with Prompt</span>
-      <span class="btn-hint"> Just attach your audio in Gemini </span>
+      <span class="btn-hint">Prompt will be pre-filled — just attach your audio there</span>
     </button>
   </div>
 </section>
@@ -328,7 +328,7 @@ The "Grows" (Areas for Improvement)
   <div class="ph">
     <div class="ph-eye">Log Session</div>
     <h1 class="ph-title">Enter <em>Scores</em></h1>
-    <p class="ph-sub">Paste the 6 scores from your Gemini review</p>
+    <p class="ph-sub">Paste the 6 scores from your Gemini review. Each session gets a unique Sub-ID for tracking.</p>
   </div>
   <div class="card">
     <div class="card-hd">
@@ -447,6 +447,7 @@ The "Grows" (Areas for Improvement)
     <div class="manage-act">
       <button class="btn" onclick="exportXLSX()">⬇ Export to Excel</button>
       <label class="import-lbl">⬆ Import Excel<input type="file" id="importFile" accept=".xlsx,.xls" style="display:none" onchange="importXLSX(event)"/></label>
+      <button class="btn gold" onclick="sendReportEmail()">📧 Email My Report</button>
       <button class="btn-ghost" onclick="clearAll()">🗑 Clear All</button>
     </div>
     <div class="tbl-wrap">
@@ -756,6 +757,140 @@ function pill(v){
 async function saveProfile(tid, name, email){
   const url=`${FB}/teachers/${fbKey(tid)}/profile.json`;
   await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,createdAt:new Date().toISOString()})});
+}
+
+async function sendReportEmail(){
+  const tid=localStorage.getItem(IK);
+  if(!tid){alert('No Teacher ID found. Please set your ID first.');return;}
+
+  showStatus('⟳ Preparing your report…','warn');
+  let email='', teacherName='';
+  try{
+    const pRes=await fetch(`${FB}/teachers/${fbKey(tid)}/profile.json`);
+    const profile=await pRes.json();
+    email=profile?.email||'';
+    teacherName=profile?.name||'Teacher';
+  }catch(e){}
+
+  if(!email){
+    email=prompt('Enter your Gmail to receive the report:');
+    if(!email){showStatus('✗ No email provided','err');return;}
+  }
+
+  const recs=_cache;
+  if(!recs.length){alert('No records to send yet!');return;}
+
+  // averages
+  const avg=d=>(recs.reduce((s,r)=>s+(r[d]||0),0)/recs.length).toFixed(1);
+
+  // build gemini prompt with full history
+  const historyText=recs.map((r,i)=>`Session ${i+1} (${r.date}) — ${r.cls}: Communication ${r.comm}/10, Understanding ${r.und}/10, Curiosity ${r.cur}/10, Bloom's ${r.bloom||0}/10, Tools ${r.tools||0}/10, Cumulative ${r.cum}/10. ${r.obs?'Notes: '+r.obs:''}`).join('\n');
+  const geminiPrompt=`You are an expert teacher coach. Here is the performance history for ${teacherName}:\n\n${historyText}\n\nAverages across ${recs.length} session(s):\nCommunication: ${avg('comm')}/10\nUnderstanding: ${avg('und')}/10\nCuriosity: ${avg('cur')}/10\nBloom's Taxonomy: ${avg('bloom')}/10\nUse of Tools: ${avg('tools')}/10\nCumulative: ${avg('cum')}/10\n\nPlease provide:\n1. A detailed analysis of teaching performance trends\n2. Key strengths observed across sessions (Glows)\n3. Specific improvement suggestions for each dimension (Grows)\n4. A professional development plan for the next 15 days\n5. One specific strategy to immediately improve the lowest scoring dimension`;
+  const geminiUrl=`https://gemini.google.com/app?q=${encodeURIComponent(geminiPrompt)}`;
+
+  // build HTML rows for sessions table
+  const sessionRows=recs.map((r,i)=>`
+    <tr style="border-bottom:1px solid #ece5d6">
+      <td style="padding:8px 10px;font-family:'DM Mono',monospace;font-size:12px;color:#1b2e1f">#${i+1}</td>
+      <td style="padding:8px 10px;font-size:13px">${r.date}</td>
+      <td style="padding:8px 10px;font-size:13px">${r.cls}</td>
+      <td style="padding:8px 10px;text-align:center"><span style="background:${r.comm>=8?'#1b2e1f':r.comm>=5?'#c8a44a':'#b85c38'};color:#fff;padding:2px 7px;border-radius:10px;font-size:12px">${r.comm}</span></td>
+      <td style="padding:8px 10px;text-align:center"><span style="background:${r.und>=8?'#1b2e1f':r.und>=5?'#c8a44a':'#b85c38'};color:#fff;padding:2px 7px;border-radius:10px;font-size:12px">${r.und}</span></td>
+      <td style="padding:8px 10px;text-align:center"><span style="background:${r.cur>=8?'#1b2e1f':r.cur>=5?'#c8a44a':'#b85c38'};color:#fff;padding:2px 7px;border-radius:10px;font-size:12px">${r.cur}</span></td>
+      <td style="padding:8px 10px;text-align:center"><span style="background:${(r.bloom||0)>=8?'#1b2e1f':(r.bloom||0)>=5?'#c8a44a':'#b85c38'};color:#fff;padding:2px 7px;border-radius:10px;font-size:12px">${r.bloom||0}</span></td>
+      <td style="padding:8px 10px;text-align:center"><span style="background:${(r.tools||0)>=8?'#1b2e1f':(r.tools||0)>=5?'#c8a44a':'#b85c38'};color:#fff;padding:2px 7px;border-radius:10px;font-size:12px">${r.tools||0}</span></td>
+      <td style="padding:8px 10px;text-align:center;font-weight:700;color:#1b2e1f">${r.cum}</td>
+    </tr>`).join('');
+
+  // full interactive HTML email
+  const htmlEmail=`<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4efe6;font-family:Arial,sans-serif">
+  <div style="max-width:650px;margin:0 auto;padding:20px">
+
+    <div style="background:#1b2e1f;padding:24px;border-radius:10px;margin-bottom:20px;text-align:center">
+      <h1 style="color:#c8a44a;margin:0;font-size:24px;letter-spacing:1px">π Project 3.14159</h1>
+      <p style="color:#7a9e82;margin:6px 0 0;font-size:12px;letter-spacing:2px">TEACHING INTELLIGENCE PLATFORM</p>
+    </div>
+
+    <div style="background:#fff;border-radius:10px;padding:24px;margin-bottom:16px;border:1px solid #dfd6c3">
+      <p style="font-size:16px;color:#2c2416;margin:0 0 4px">Hi <strong>${teacherName}</strong> 👋</p>
+      <p style="font-size:13px;color:#7a6e5a;margin:0">Here's your 15-day teaching performance report. ${recs.length} session(s) on record.</p>
+    </div>
+
+    <div style="background:#fff;border-radius:10px;padding:20px;margin-bottom:16px;border:1px solid #dfd6c3">
+      <h2 style="color:#1b2e1f;font-size:15px;margin:0 0 16px;border-bottom:2px solid #c8a44a;padding-bottom:8px">📊 Session History</h2>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:#f4efe6">
+              <th style="padding:8px 10px;text-align:left;color:#7a6e5a;font-size:11px">#</th>
+              <th style="padding:8px 10px;text-align:left;color:#7a6e5a;font-size:11px">Date</th>
+              <th style="padding:8px 10px;text-align:left;color:#7a6e5a;font-size:11px">Class</th>
+              <th style="padding:8px 10px;text-align:center;color:#7a6e5a;font-size:11px">Comm</th>
+              <th style="padding:8px 10px;text-align:center;color:#7a6e5a;font-size:11px">Und</th>
+              <th style="padding:8px 10px;text-align:center;color:#7a6e5a;font-size:11px">Cur</th>
+              <th style="padding:8px 10px;text-align:center;color:#7a6e5a;font-size:11px">Bloom</th>
+              <th style="padding:8px 10px;text-align:center;color:#7a6e5a;font-size:11px">Tools</th>
+              <th style="padding:8px 10px;text-align:center;color:#7a6e5a;font-size:11px">Cum</th>
+            </tr>
+          </thead>
+          <tbody>${sessionRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="background:#fff;border-radius:10px;padding:20px;margin-bottom:16px;border:1px solid #dfd6c3">
+      <h2 style="color:#1b2e1f;font-size:15px;margin:0 0 16px;border-bottom:2px solid #c8a44a;padding-bottom:8px">📈 Your Averages</h2>
+      <table style="width:100%;border-collapse:collapse">
+        ${[['Communication',avg('comm')],['Understanding',avg('und')],['Curiosity',avg('cur')],["Bloom's Taxonomy",avg('bloom')],['Use of Tools',avg('tools')],['Cumulative',avg('cum')]].map(([label,val])=>`
+        <tr style="border-bottom:1px solid #f4efe6">
+          <td style="padding:8px 0;font-size:13px;color:#4a3f30">${label}</td>
+          <td style="padding:8px 0;width:60%">
+            <div style="background:#f4efe6;border-radius:4px;height:10px;overflow:hidden">
+              <div style="width:${val*10}%;height:100%;background:${val>=8?'#1b2e1f':val>=5?'#c8a44a':'#b85c38'};border-radius:4px"></div>
+            </div>
+          </td>
+          <td style="padding:8px 0 8px 10px;font-size:13px;font-weight:700;color:#1b2e1f;font-family:monospace">${val}/10</td>
+        </tr>`).join('')}
+      </table>
+    </div>
+
+    <div style="background:#1b2e1f;border-radius:10px;padding:20px;margin-bottom:16px;text-align:center">
+      <h2 style="color:#c8a44a;font-size:15px;margin:0 0 8px">🤖 Get Your AI Analysis</h2>
+      <p style="color:#7a9e82;font-size:12px;margin:0 0 16px">Your full session history has been pre-loaded into Gemini. Click below for a personalised coaching report with improvement suggestions.</p>
+      <a href="${geminiUrl}" style="display:inline-block;background:#c8a44a;color:#1b2e1f;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:.5px">✦ Open Gemini Analysis →</a>
+    </div>
+
+    <p style="text-align:center;color:#7a6e5a;font-size:11px;margin-top:20px">built by dhruv ♥ — Project 3.14159</p>
+  </div>
+</body></html>`;
+
+  // send via EmailJS
+  try{
+    const payload={
+      service_id:'service_gfqgn89',
+      template_id:'template_abvm73k',
+      user_id:'GO5QUCAwqkYqmFXZT',
+      template_params:{
+        to_email: email,
+        teacher_name: teacherName,
+        report_body: htmlEmail,
+        master_prompt: ''
+      }
+    };
+    const res=await fetch('https://api.emailjs.com/api/v1.0/email/send',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','origin':'https://project314159.github.io'},
+      body:JSON.stringify(payload)
+    });
+    if(res.ok){
+      showStatus(`✓ Report sent to ${email}!`,'ok');
+    } else {
+      const t=await res.text();
+      showStatus(`✗ Email failed: ${t}`,'err');
+    }
+  }catch(e){
+    showStatus(`✗ Email error: ${e.message}`,'err');
+  }
 }
 
 // EXCEL
