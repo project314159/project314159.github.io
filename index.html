@@ -493,15 +493,29 @@ window.addEventListener('DOMContentLoaded',async ()=>{
   const sid=localStorage.getItem(IK);
   console.log('Stored Teacher ID:', sid);
 
-  if(sid && sid!=='—' && sid!=='null'){
-    // returning user — restore ID and load data
-    document.getElementById('r_id_badge').textContent=sid;
-    document.getElementById('r_id_input').value=sid;
-    document.getElementById('i_id').value=sid;
-    await loadFromFirebase(sid);
-  } else {
-    // new device — show the login prompt
+  // check URL params — ?download=true auto-triggers Excel export after loading
+  const urlParams=new URLSearchParams(window.location.search);
+  const autoDownload=urlParams.get('download')==='true';
+  const urlTid=urlParams.get('tid');
 
+  // if URL has a tid, use it (coming from email link)
+  const activeTid=urlTid||sid;
+
+  if(activeTid && activeTid!=='—' && activeTid!=='null'){
+    const cleanTid=activeTid.startsWith('#')?activeTid:'#'+activeTid;
+    document.getElementById('r_id_badge').textContent=cleanTid;
+    document.getElementById('r_id_input').value=cleanTid;
+    document.getElementById('i_id').value=cleanTid;
+    localStorage.setItem(IK,cleanTid);
+    await loadFromFirebase(cleanTid);
+    // auto-download Excel if triggered from email
+    if(autoDownload){
+      setTimeout(()=>{
+        exportXLSX();
+        showStatus('✓ Excel downloaded automatically!','ok');
+      },800);
+    }
+  } else {
     renderTable();
   }
 
@@ -858,6 +872,9 @@ async function sendReportEmail(){
       <h2 style="color:#c8a44a;font-size:15px;margin:0 0 8px">🤖 Get Your AI Analysis</h2>
       <p style="color:#7a9e82;font-size:12px;margin:0 0 16px">Your full session history has been pre-loaded into Gemini. Click below for a personalised coaching report with improvement suggestions.</p>
       <a href="${geminiUrl}" style="display:inline-block;background:#c8a44a;color:#1b2e1f;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:.5px">✦ Open Gemini Analysis →</a>
+      <br><br>
+      <a href="https://project314159.github.io?tid=${encodeURIComponent(tid)}&download=true" style="display:inline-block;background:#1b2e1f;color:#c8a44a;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:700;font-size:14px;letter-spacing:.5px;border:2px solid #c8a44a">⬇ Download My Data as Excel</a>
+      <p style="color:#7a9e82;font-size:11px;margin:8px 0 0">Opens the app and auto-downloads your Excel file instantly</p>
     </div>
 
     <p style="text-align:center;color:#7a6e5a;font-size:11px;margin-top:20px">built by dhruv ♥ — Project 3.14159</p>
