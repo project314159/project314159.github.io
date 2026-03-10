@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root{
   --cream:#f4efe6;--cream2:#ece5d6;--cream3:#dfd6c3;
@@ -32,7 +33,27 @@ body{background:var(--cream);color:var(--ink);font-family:var(--fb);font-size:14
 ::-webkit-scrollbar-track{background:var(--cream2)}
 ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
 
-/* NAV */
+/* CHART SCREENSHOT */
+.ct-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.snap-btn{background:var(--forest);color:var(--gold);border:none;border-radius:var(--r1);padding:5px 12px;font-family:var(--fm);font-size:11px;cursor:pointer;opacity:.7;transition:opacity .2s,transform .2s}
+.snap-btn:hover{opacity:1;transform:scale(1.04)}
+
+/* EVAL CARDS */
+.eval-card{display:flex;gap:1.8rem;align-items:flex-start}
+.eval-icon-wrap{width:64px;height:64px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--s2)}
+.eval-body{flex:1}
+.eval-title{font-family:var(--fd);font-size:1.3rem;font-weight:700;color:var(--forest);margin-bottom:.5rem}
+.eval-desc{font-size:13.5px;color:var(--ink2);line-height:1.7;margin-bottom:.8rem}
+.eval-tags{display:flex;flex-wrap:wrap;gap:6px}
+.etag{background:var(--cream2);color:var(--ink2);padding:3px 10px;border-radius:100px;font-size:11px;font-family:var(--fm)}
+.eval-btn{width:100%;justify-content:center}
+.notion-steps{margin-top:1rem;padding:1rem;background:var(--cream);border-radius:var(--r1);border:1px solid var(--cream3)}
+.ns-title{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:.6rem}
+.ns-step{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink2);margin-bottom:.4rem}
+.ns-num{width:20px;height:20px;border-radius:50%;background:var(--forest);color:var(--gold);font-size:10px;font-family:var(--fm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+kbd{background:var(--cream2);border:1px solid var(--cream3);border-radius:4px;padding:1px 6px;font-family:var(--fm);font-size:11px}
+@media(max-width:600px){.eval-card{flex-direction:column}.eval-icon-wrap{width:48px;height:48px}}
+
 nav{position:sticky;top:0;z-index:300;background:var(--forest);display:flex;align-items:center;height:62px;box-shadow:0 2px 28px rgba(10,20,12,.45)}
 .nav-brand{display:flex;align-items:center;gap:11px;padding:0 1.75rem;height:100%;border-right:1px solid rgba(200,164,74,.18);flex-shrink:0}
 .nav-pi{font-family:var(--fd);font-size:2rem;font-weight:900;color:var(--gold);line-height:1}
@@ -184,6 +205,7 @@ tr:hover td{background:rgba(200,164,74,.05)}
     <button class="tab-btn" data-tab="input"><span class="ti">📋</span> Enter Scores</button>
     <button class="tab-btn" data-tab="dash"><span class="ti">📊</span> Dashboard</button>
     <button class="tab-btn" data-tab="data"><span class="ti">🗂</span> Data</button>
+    <button class="tab-btn" data-tab="eval"><span class="ti">🧪</span> Report Evaluation</button>
   </div>
 </nav>
 
@@ -237,88 +259,157 @@ tr:hover td{background:rgba(200,164,74,.05)}
         <span>Pre-built Gemini Prompt — click the button to open with this pre-loaded</span>
         <button class="btn-copy" id="copyBtn" onclick="copyPrompt()">📋 Copy</button>
       </div>
-      <div class="prompt-body" id="promptText">This combined evaluation tool merges the pedagogical frameworks of the AI Master Prompt with the specific observational criteria of the Sunbeam Educator reflection sheet. It creates a robust, evidence-based report that balances high-level educational theory with granular classroom practice.
+      <div class="prompt-body" id="promptText">Using the Teacher Self-Observation Format below, please analyse the recorded class and fill each section objectively. Follow the exact structure, include percentages, examples, reflections, glows, grows, action points, and keep the tone constructive and professional. Give the whole report in one go without asking for consent for further proceedings.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-COMPREHENSIVE CLASSROOM OBSERVATION & EVALUATION REPORT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Teacher Name: ____________________
-Date: ____________________
-Subject / Grade: ____________________
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-I. PEDAGOGICAL FRAMEWORK ANALYSIS
+SUNBEAM TEACHER SELF-OBSERVATION TEMPLATE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. Howard Gardner – Multiple Intelligences
-Evidence of Linguistic, Logical-Mathematical, Visual, Kinesthetic, etc.
-• Observation:
-• Reflection:
+Teacher Name:
+Class & Section:
+Subject:
+Topic:
+Date:
 
-2. Inquiry-Based & Flipped Learning
-Encouragement of prior learning, curiosity, and student-led exploration.
-• Observation:
-• Reflection:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Teacher Talk vs Student Talk
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Estimate percentage of talk time for teacher vs students. Describe the balance.)
+● Teacher Talk:
+● Student Talk:
+Reflection:
 
-3. Bloom's Taxonomy & Questioning Style
-Levels of thinking (Recall → Create) and execution of questioning.
-• Question Types: (Open-ended, closed, reasoning, recall)
-• Wait Time Given: (Seconds / Effectiveness)
-• Evidence of Bloom's Levels:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. Questioning Style
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Note types of questions asked — open-ended, closed, reasoning-based, recall. Comment on wait time.)
+● Types of Questions Observed:
+● Wait Time Given:
+Reflection:
 
-4. Marzano's Framework & Instructional Clarity
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. Tone and Pace
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Describe tone — warm, firm, rushed — and pacing of instruction.)
+● Tone:
+● Pace:
+Reflection:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. Positive Reinforcement
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Identify praise, encouragement, acknowledgement of effort, verbal/non-verbal appreciation.)
+● Examples of Reinforcement:
+Reflection:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. Classroom Management Cues
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Note transitions, redirections, behaviour reminders, routines used.)
+● Cues Observed:
+● Off-task Behaviour (if any):
+Reflection:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. Resources Used
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(List teaching-learning materials used — textbook, notebook, IFP, manipulatives, worksheets, examples.)
+● Resources Used:
+Reflection:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. Learning Outcomes Achieved
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Identify which planned outcomes were met, partially met, or not achieved based on evidence from student responses/work.)
+● Achieved Outcomes:
+● Partially Achieved:
+● Not Achieved:
+Reflection:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. Lesson Flow
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Tick or describe which components were observed.)
+● Introduction
+● Concept Explanation
+● Guided Practice
+● Independent Practice
+● Assessment
+● Closure
+Comments on Flow:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. Lesson Plan Alignment
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Was the delivered class aligned with the planned learning objectives and activities?)
+● Alignment: Yes / No / Partially
+● Notes:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. Glows (Strengths)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Two observable strengths in teacher practice.)
+1.
+2.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+11. Grows (Areas for Improvement)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Two specific, actionable improvement areas.)
+1.
+2.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12. Action Points (Next Steps)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Two concrete steps the teacher can take to improve practice.)
+1.
+2.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+13. Noteworthy Practices
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(Any technique, strategy, or moment worth acknowledging or repeating.)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+14. Teacher's Reflective Note
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+(A brief reflection from the teacher's perspective.)
+
+"As educators of Sunbeam, we grow by reflecting, refining, and renewing our practice."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+15. Marzano's Framework & Instructional Clarity
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Clear objectives, feedback, and engagement strategies.
-• Tone: (Warm, firm, rushed)
-• Pace: (Appropriate, too fast, slow)
-• Instructional Evidence:
+● Tone: (Warm, firm, rushed)
+● Pace: (Appropriate, too fast, slow)
+● Instructional Evidence:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-II. CLASSROOM DYNAMICS & MANAGEMENT
+16. Scores  ← COPY THESE INTO THE APP UNDER "ENTER SCORES"
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-5. Talk Ratio & Reinforcement
-• Teacher Talk (%):
-• Student Talk (%):
-• Positive Reinforcement: (Praise, encouragement, non-verbal cues)
-• Reflection on Balance:
-
-6. Management Cues & Lesson Flow
-• Cues Observed: (Transitions, redirections, routines)
-• Off-task Behaviour:
-• Flow Components: [ ] Intro [ ] Explanation [ ] Guided Practice [ ] Independent [ ] Assessment [ ] Closure
-• Alignment with Plan: Yes / No / Partially
-
-7. Resources & Learning Outcomes
-• Resources Used: (Textbook, IFP, Manipulatives, etc.)
-• Outcomes Achieved:
-• Outcomes Partially / Not Achieved:
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-III. SCORING & PERFORMANCE METRICS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 Format scores EXACTLY like this:
 COMMUNICATION: X/10
 UNDERSTANDING CONCEPTS: X/10
 CURIOSITY: X/10
 BLOOM'S TAXONOMY: X/10
 USE OF TOOLS: X/10
-CUMULATIVE: X/50
+CUMULATIVE: X/10
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-IV. SUMMARY OF STRENGTHS & GROWTH
+17. Summary of Strengths & Growth
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 The "Glows" (Strengths)
-• Noteworthy Practice: (A specific moment or strategy worth repeating)
+● Noteworthy Practice: (A specific moment or strategy worth repeating)
 
 The "Grows" (Areas for Improvement)
-• Priority Focus: (The single most impactful change for next lesson)
-• Suggested Strategy:</div>
+● Priority Focus: (The single most impactful change for next lesson)
+● Suggested Strategy:</div>
     </div>
     <button class="btn big" id="chatgptBtn" onclick="openGemini()">
       <span>✦ Open Gemini with Prompt</span>
-      <span class="btn-hint">Prompt will be pre-filled — just attach your audio there</span>
+      <span class="btn-hint">Prompt is copied to clipboard — just press Ctrl+V in Gemini</span>
     </button>
   </div>
 </section>
@@ -328,7 +419,7 @@ The "Grows" (Areas for Improvement)
   <div class="ph">
     <div class="ph-eye">Log Session</div>
     <h1 class="ph-title">Enter <em>Scores</em></h1>
-    <p class="ph-sub">Paste the 6 scores from your Gemini review. Each session gets a unique Sub-ID for tracking.</p>
+    <p class="ph-sub">After Gemini generates your report, find <strong>Section 16 — Scores</strong> and enter them below. Each session gets a unique Sub-ID for tracking.</p>
   </div>
   <div class="card">
     <div class="card-hd">
@@ -429,14 +520,111 @@ The "Grows" (Areas for Improvement)
     <div class="sbox"><div class="slabel">Avg Cumulative</div><div class="sval" id="st_m">—</div></div>
   </div>
   <div class="charts-grid">
-    <div class="chart-card wide"><div class="ct">Score Trends Over Time</div><canvas id="ch_trend"></canvas></div>
-    <div class="chart-card"><div class="ct">Average by Dimension</div><canvas id="ch_radar"></canvas></div>
-    <div class="chart-card"><div class="ct">Distribution Overview</div><canvas id="ch_bar"></canvas></div>
-    <div class="chart-card wide"><div class="ct">Class Comparison</div><canvas id="ch_class"></canvas></div>
+    <div class="chart-card wide">
+      <div class="ct-row"><div class="ct">Score Trends Over Time</div><button class="snap-btn" onclick="snapChart('ch_trend','trend')">📸 Save</button></div>
+      <canvas id="ch_trend"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="ct-row"><div class="ct">Average by Dimension</div><button class="snap-btn" onclick="snapChart('ch_radar','radar')">📸 Save</button></div>
+      <canvas id="ch_radar"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="ct-row"><div class="ct">Distribution Overview</div><button class="snap-btn" onclick="snapChart('ch_bar','bar')">📸 Save</button></div>
+      <canvas id="ch_bar"></canvas>
+    </div>
+    <div class="chart-card wide">
+      <div class="ct-row"><div class="ct">Class Comparison</div><button class="snap-btn" onclick="snapChart('ch_class','class')">📸 Save</button></div>
+      <canvas id="ch_class"></canvas>
+    </div>
   </div>
 </section>
 
-<!-- TAB: DATA -->
+<!-- TAB: REPORT EVALUATION -->
+<section class="tab-content" id="tab-eval">
+  <div class="ph">
+    <div class="ph-eye">AI Evaluation Suite</div>
+    <h1 class="ph-title"><em>Report</em> Evaluation</h1>
+    <p class="ph-sub">Analyse your monthly data for trends, problems, and personalised solutions using your favourite AI tools.</p>
+  </div>
+
+  <!-- GEMINI CARD -->
+  <div class="card eval-card">
+    <div class="eval-icon-wrap" style="background:linear-gradient(135deg,#1a7a6e,#0d4d45)">
+      <span style="font-size:2rem">✦</span>
+    </div>
+    <div class="eval-body">
+      <div class="eval-title">Analyse with Gemini</div>
+      <div class="eval-desc">Copies your full monthly performance summary and opens Gemini. Get trend analysis, problem identification, and actionable improvement strategies.</div>
+      <div class="eval-tags">
+        <span class="etag">📈 Trend Analysis</span>
+        <span class="etag">⚠️ Problem Detection</span>
+        <span class="etag">💡 Solutions</span>
+        <span class="etag">🎯 15-Day Plan</span>
+      </div>
+      <button class="btn big eval-btn" onclick="evalWithGemini()" style="margin-top:1.2rem">
+        <span>✦ Open Gemini Analysis</span>
+        <span class="btn-hint">Monthly data copied to clipboard — paste in Gemini</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- CHATGPT CARD -->
+  <div class="card eval-card">
+    <div class="eval-icon-wrap" style="background:linear-gradient(135deg,#1b2e1f,#2d4733)">
+      <span style="font-size:2rem">🤖</span>
+    </div>
+    <div class="eval-body">
+      <div class="eval-title">Analyse with ChatGPT</div>
+      <div class="eval-desc">Copies your full monthly performance summary and opens ChatGPT. Ideal for detailed written coaching reports and framework-based feedback.</div>
+      <div class="eval-tags">
+        <span class="etag">📊 Framework Analysis</span>
+        <span class="etag">📝 Detailed Report</span>
+        <span class="etag">🧠 Bloom's Insights</span>
+        <span class="etag">✅ Action Points</span>
+      </div>
+      <button class="btn big eval-btn" onclick="evalWithChatGPT()" style="margin-top:1.2rem">
+        <span>🤖 Open ChatGPT Analysis</span>
+        <span class="btn-hint">Monthly data copied to clipboard — paste in ChatGPT</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- NOTION CARD -->
+  <div class="card eval-card">
+    <div class="eval-icon-wrap" style="background:linear-gradient(135deg,#2c2416,#4a3f30)">
+      <span style="font-size:2rem">📓</span>
+    </div>
+    <div class="eval-body">
+      <div class="eval-title">Export to Notion</div>
+      <div class="eval-desc">Copies your full session data formatted as a Notion-ready table. Open Notion, create a new page, and paste — it auto-formats into a beautiful database.</div>
+      <div class="eval-tags">
+        <span class="etag">📋 Notion Table</span>
+        <span class="etag">🗂 All Sessions</span>
+        <span class="etag">📅 Date Sorted</span>
+        <span class="etag">⚡ Paste Ready</span>
+      </div>
+      <button class="btn big eval-btn" onclick="exportToNotion()" style="margin-top:1.2rem;background:var(--ink);color:var(--cream)">
+        <span>📓 Copy for Notion</span>
+        <span class="btn-hint">Paste into any Notion page — formats automatically</span>
+      </button>
+      <div class="notion-steps">
+        <div class="ns-title">How to paste into Notion:</div>
+        <div class="ns-step"><span class="ns-num">1</span> Click the button above</div>
+        <div class="ns-step"><span class="ns-num">2</span> Open <a href="https://notion.so" target="_blank" style="color:var(--gold)">notion.so</a> → New page</div>
+        <div class="ns-step"><span class="ns-num">3</span> Press <kbd>Ctrl+V</kbd> — Notion auto-creates the table</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONTHLY SUMMARY PREVIEW -->
+  <div class="card" id="evalPreview" style="display:none">
+    <div class="card-hd">
+      <div class="sdot">📋</div>
+      <div><div class="ctitle">Monthly Summary Preview</div></div>
+    </div>
+    <pre id="evalPreviewText" style="font-family:var(--fm);font-size:12px;color:var(--ink2);white-space:pre-wrap;line-height:1.8;background:var(--cream);padding:1.2rem;border-radius:var(--r1);border:1px solid var(--cream3)"></pre>
+  </div>
+</section>
 <section class="tab-content" id="tab-data">
   <div class="ph">
     <div class="ph-eye">Records</div>
@@ -471,6 +659,77 @@ The "Grows" (Areas for Improvement)
 const IK='p314159_id';
 let charts={};
 let _cache=[];
+
+// CHART SCREENSHOT — uses canvas directly, no html2canvas needed
+function snapChart(canvasId, name){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas){showStatus('Generate charts first!','err');return;}
+  const link=document.createElement('a');
+  link.download=`project3.14159_${name}_${new Date().toISOString().slice(0,10)}.png`;
+  link.href=canvas.toDataURL('image/png',1.0);
+  link.click();
+  showStatus(`✓ ${name} chart saved as PNG!`,'ok');
+}
+
+// BUILD MONTHLY EVAL PROMPT
+function buildEvalPrompt(){
+  const recs=_cache;
+  if(!recs.length){alert('No records found. Load your data first on the Record tab.');return null;}
+  const now=new Date();
+  const monthly=recs.filter(r=>{
+    const d=new Date(r.date);
+    return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+  });
+  const target=monthly.length?monthly:recs;
+  const label=monthly.length?'this month':'all time';
+  const avg=d=>(target.reduce((s,r)=>s+(r[d]||0),0)/target.length).toFixed(1);
+  const sessions=target.map((r,i)=>`Session ${i+1} (${r.date}) — ${r.cls}:\n  Communication ${r.comm}/10 | Understanding ${r.und}/10 | Curiosity ${r.cur}/10\n  Bloom's ${r.bloom||0}/10 | Tools ${r.tools||0}/10 | Cumulative ${r.cum}/10${r.obs?'\n  Notes: '+r.obs:''}`).join('\n\n');
+  const prompt=`You are an expert teaching coach. Here is the performance data for ${label} (${target.length} sessions):\n\n${sessions}\n\nAVERAGES (${label}):\nCommunication: ${avg('comm')}/10\nUnderstanding: ${avg('und')}/10\nCuriosity: ${avg('cur')}/10\nBloom's Taxonomy: ${avg('bloom')}/10\nUse of Tools: ${avg('tools')}/10\nCumulative: ${avg('cum')}/10\n\nPlease provide a comprehensive monthly evaluation:\n1. TREND ANALYSIS — What patterns do you see across sessions? Improving or declining?\n2. PROBLEMS IDENTIFIED — Which dimensions are consistently low and why?\n3. STRENGTHS (Glows) — What is this teacher doing well consistently?\n4. SOLUTIONS (Grows) — Specific, actionable strategies to address each problem\n5. 15-DAY IMPROVEMENT PLAN — A concrete week-by-week plan\n6. PRIORITY FOCUS — The single most impactful change to make immediately\n\nKeep the tone constructive, professional, and evidence-based. Give the full report in one go.`;
+  return prompt;
+}
+
+function _openUrl(url){
+  // create a real anchor and click it — bypasses popup blockers
+  const a=document.createElement('a');
+  a.href=url;a.target='_blank';a.rel='noopener noreferrer';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function evalWithGemini(){
+  const prompt=buildEvalPrompt();
+  if(!prompt)return;
+  document.getElementById('evalPreview').style.display='block';
+  document.getElementById('evalPreviewText').textContent=prompt;
+  navigator.clipboard.writeText(prompt).catch(()=>{});
+  showStatus('✓ Data copied — opening Gemini, press Ctrl+V to paste','ok');
+  _openUrl('https://gemini.google.com/app');
+}
+
+function evalWithChatGPT(){
+  const prompt=buildEvalPrompt();
+  if(!prompt)return;
+  document.getElementById('evalPreview').style.display='block';
+  document.getElementById('evalPreviewText').textContent=prompt;
+  navigator.clipboard.writeText(prompt).catch(()=>{});
+  showStatus('✓ Data copied — opening ChatGPT, press Ctrl+V to paste','ok');
+  _openUrl('https://chatgpt.com');
+}
+
+function exportToNotion(){
+  const recs=_cache;
+  if(!recs.length){showStatus('⚠ No records — load your data first on Record tab','err');return;}
+  const header='| # | Date | Class | Communication | Understanding | Curiosity | Bloom\'s | Tools | Cumulative | Notes |';
+  const divider='|---|---|---|---|---|---|---|---|---|---|';
+  const rows=recs.map((r,i)=>`| ${i+1} | ${r.date} | ${r.cls} | ${r.comm}/10 | ${r.und}/10 | ${r.cur}/10 | ${r.bloom||0}/10 | ${r.tools||0}/10 | ${r.cum}/10 | ${r.obs||'—'} |`).join('\n');
+  const avg=d=>(recs.reduce((s,r)=>s+(r[d]||0),0)/recs.length).toFixed(1);
+  const summary=`\n\n## Averages across ${recs.length} sessions\n| Dimension | Average |\n|---|---|\n| Communication | ${avg('comm')}/10 |\n| Understanding | ${avg('und')}/10 |\n| Curiosity | ${avg('cur')}/10 |\n| Bloom's Taxonomy | ${avg('bloom')}/10 |\n| Use of Tools | ${avg('tools')}/10 |\n| Cumulative | ${avg('cum')}/10 |`;
+  const notionText=`# Project 3.14159 — Teaching Performance Data\n*Exported ${new Date().toLocaleDateString()}*\n\n${header}\n${divider}\n${rows}${summary}`;
+  document.getElementById('evalPreview').style.display='block';
+  document.getElementById('evalPreviewText').textContent=notionText;
+  navigator.clipboard.writeText(notionText).catch(()=>{});
+  showStatus('✓ Notion table copied — opening Notion, press Ctrl+V to paste','ok');
+  _openUrl('https://notion.so');
+}
 
 // TABS
 document.querySelectorAll('.tab-btn').forEach(b=>{
@@ -552,11 +811,11 @@ function loadId(){
   loadFromFirebase(v);
 }
 
-// GEMINI — opens with prompt pre-filled
+// GEMINI — copies prompt to clipboard then opens Gemini
 function openGemini(){
   const prompt=document.getElementById('promptText').innerText;
-  const encoded=encodeURIComponent(prompt);
-  window.open('https://gemini.google.com/app?q='+encoded,'_blank');
+  // open window immediately before any async to avoid popup blocker
+  const win=window.open('https://gemini.google.com/app','_blank');
   // sync fields to Enter Scores tab
   const name=document.getElementById('r_name').value;
   const id=document.getElementById('r_id_badge').textContent;
@@ -566,6 +825,10 @@ function openGemini(){
   if(id&&id!=='—')document.getElementById('i_id').value=id;
   if(cls)document.getElementById('i_class').value=cls;
   if(date)document.getElementById('i_date').value=date;
+  navigator.clipboard.writeText(prompt).then(()=>{
+    showStatus('✓ Prompt copied! Paste with Ctrl+V in Gemini','ok');
+  }).catch(()=>showStatus('⚠ Copy failed — paste manually','warn'));
+  if(!win) showStatus('⚠ Allow popups for this site in your browser','warn');
 }
 function copyPrompt(){
   navigator.clipboard.writeText(document.getElementById('promptText').innerText).then(()=>{
@@ -797,10 +1060,9 @@ async function sendReportEmail(){
   // averages
   const avg=d=>(recs.reduce((s,r)=>s+(r[d]||0),0)/recs.length).toFixed(1);
 
-  // build gemini prompt with full history
-  const historyText=recs.map((r,i)=>`Session ${i+1} (${r.date}) — ${r.cls}: Communication ${r.comm}/10, Understanding ${r.und}/10, Curiosity ${r.cur}/10, Bloom's ${r.bloom||0}/10, Tools ${r.tools||0}/10, Cumulative ${r.cum}/10. ${r.obs?'Notes: '+r.obs:''}`).join('\n');
-  const geminiPrompt=`You are an expert teacher coach. Here is the performance history for ${teacherName}:\n\n${historyText}\n\nAverages across ${recs.length} session(s):\nCommunication: ${avg('comm')}/10\nUnderstanding: ${avg('und')}/10\nCuriosity: ${avg('cur')}/10\nBloom's Taxonomy: ${avg('bloom')}/10\nUse of Tools: ${avg('tools')}/10\nCumulative: ${avg('cum')}/10\n\nPlease provide:\n1. A detailed analysis of teaching performance trends\n2. Key strengths observed across sessions (Glows)\n3. Specific improvement suggestions for each dimension (Grows)\n4. A professional development plan for the next 15 days\n5. One specific strategy to immediately improve the lowest scoring dimension`;
-  const geminiUrl=`https://gemini.google.com/app?q=${encodeURIComponent(geminiPrompt)}`;
+  // short gemini prompt for email (URL length limit)
+  const shortPrompt=`You are an expert teacher coach. Analyse the performance of ${teacherName} across ${recs.length} sessions. Averages: Communication ${avg('comm')}/10, Understanding ${avg('und')}/10, Curiosity ${avg('cur')}/10, Bloom's ${avg('bloom')}/10, Tools ${avg('tools')}/10, Cumulative ${avg('cum')}/10. Provide: 1) Key strengths (Glows) 2) Areas to improve (Grows) 3) A 15-day development plan 4) One strategy for the lowest dimension.`;
+  const geminiUrl=`https://gemini.google.com/app?q=${encodeURIComponent(shortPrompt)}`;
 
   // build HTML rows for sessions table
   const sessionRows=recs.map((r,i)=>`
