@@ -544,7 +544,7 @@ The "Grows" (Areas for Improvement)
   <div class="ph">
     <div class="ph-eye">AI Evaluation Suite</div>
     <h1 class="ph-title"><em>Report</em> Evaluation</h1>
-    <p class="ph-sub">Analyse your monthly data for trends, problems, and personalised solutions using your favourite AI tools.</p>
+    <p class="ph-sub">Deep monthly analysis across every framework — paste into your AI of choice.</p>
   </div>
 
   <!-- GEMINI CARD -->
@@ -554,16 +554,17 @@ The "Grows" (Areas for Improvement)
     </div>
     <div class="eval-body">
       <div class="eval-title">Analyse with Gemini</div>
-      <div class="eval-desc">Copies your full monthly performance summary and opens Gemini. Get trend analysis, problem identification, and actionable improvement strategies.</div>
       <div class="eval-tags">
-        <span class="etag">📈 Trend Analysis</span>
-        <span class="etag">⚠️ Problem Detection</span>
+        <span class="etag">📈 Trends</span>
+        <span class="etag">⚠️ Problems</span>
         <span class="etag">💡 Solutions</span>
         <span class="etag">🎯 15-Day Plan</span>
+        <span class="etag">🌱 Bloom's</span>
+        <span class="etag">📐 Marzano</span>
       </div>
       <button class="btn big eval-btn" onclick="evalWithGemini()" style="margin-top:1.2rem">
         <span>✦ Open Gemini Analysis</span>
-        <span class="btn-hint">Monthly data copied to clipboard — paste in Gemini</span>
+        <span class="btn-hint">Prompt copied — press Ctrl+V in Gemini</span>
       </button>
     </div>
   </div>
@@ -575,16 +576,17 @@ The "Grows" (Areas for Improvement)
     </div>
     <div class="eval-body">
       <div class="eval-title">Analyse with ChatGPT</div>
-      <div class="eval-desc">Copies your full monthly performance summary and opens ChatGPT. Ideal for detailed written coaching reports and framework-based feedback.</div>
       <div class="eval-tags">
-        <span class="etag">📊 Framework Analysis</span>
-        <span class="etag">📝 Detailed Report</span>
-        <span class="etag">🧠 Bloom's Insights</span>
+        <span class="etag">📊 Class Analysis</span>
+        <span class="etag">📝 Full Report</span>
+        <span class="etag">🧠 Bloom's</span>
         <span class="etag">✅ Action Points</span>
+        <span class="etag">📐 Marzano</span>
+        <span class="etag">🔍 Deep Dive</span>
       </div>
       <button class="btn big eval-btn" onclick="evalWithChatGPT()" style="margin-top:1.2rem">
         <span>🤖 Open ChatGPT Analysis</span>
-        <span class="btn-hint">Monthly data copied to clipboard — paste in ChatGPT</span>
+        <span class="btn-hint">Prompt copied — press Ctrl+V in ChatGPT</span>
       </button>
     </div>
   </div>
@@ -596,23 +598,16 @@ The "Grows" (Areas for Improvement)
     </div>
     <div class="eval-body">
       <div class="eval-title">Export to Notion</div>
-      <div class="eval-desc">Copies your full session data formatted as a Notion-ready table. Open Notion, create a new page, and paste — it auto-formats into a beautiful database.</div>
       <div class="eval-tags">
-        <span class="etag">📋 Notion Table</span>
+        <span class="etag">📋 Table</span>
         <span class="etag">🗂 All Sessions</span>
-        <span class="etag">📅 Date Sorted</span>
+        <span class="etag">📅 Sorted</span>
         <span class="etag">⚡ Paste Ready</span>
       </div>
       <button class="btn big eval-btn" onclick="exportToNotion()" style="margin-top:1.2rem;background:var(--ink);color:var(--cream)">
         <span>📓 Copy for Notion</span>
-        <span class="btn-hint">Paste into any Notion page — formats automatically</span>
+        <span class="btn-hint">Open Notion → New page → Ctrl+V</span>
       </button>
-      <div class="notion-steps">
-        <div class="ns-title">How to paste into Notion:</div>
-        <div class="ns-step"><span class="ns-num">1</span> Click the button above</div>
-        <div class="ns-step"><span class="ns-num">2</span> Open <a href="https://notion.so" target="_blank" style="color:var(--gold)">notion.so</a> → New page</div>
-        <div class="ns-step"><span class="ns-num">3</span> Press <kbd>Ctrl+V</kbd> — Notion auto-creates the table</div>
-      </div>
     </div>
   </div>
 
@@ -620,7 +615,7 @@ The "Grows" (Areas for Improvement)
   <div class="card" id="evalPreview" style="display:none">
     <div class="card-hd">
       <div class="sdot">📋</div>
-      <div><div class="ctitle">Monthly Summary Preview</div></div>
+      <div><div class="ctitle">Prompt Preview</div></div>
     </div>
     <pre id="evalPreviewText" style="font-family:var(--fm);font-size:12px;color:var(--ink2);white-space:pre-wrap;line-height:1.8;background:var(--cream);padding:1.2rem;border-radius:var(--r1);border:1px solid var(--cream3)"></pre>
   </div>
@@ -681,10 +676,92 @@ function buildEvalPrompt(){
     return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
   });
   const target=monthly.length?monthly:recs;
-  const label=monthly.length?'this month':'all time';
+  const label=monthly.length?'this month':'all available sessions';
   const avg=d=>(target.reduce((s,r)=>s+(r[d]||0),0)/target.length).toFixed(1);
-  const sessions=target.map((r,i)=>`Session ${i+1} (${r.date}) — ${r.cls}:\n  Communication ${r.comm}/10 | Understanding ${r.und}/10 | Curiosity ${r.cur}/10\n  Bloom's ${r.bloom||0}/10 | Tools ${r.tools||0}/10 | Cumulative ${r.cum}/10${r.obs?'\n  Notes: '+r.obs:''}`).join('\n\n');
-  const prompt=`You are an expert teaching coach. Here is the performance data for ${label} (${target.length} sessions):\n\n${sessions}\n\nAVERAGES (${label}):\nCommunication: ${avg('comm')}/10\nUnderstanding: ${avg('und')}/10\nCuriosity: ${avg('cur')}/10\nBloom's Taxonomy: ${avg('bloom')}/10\nUse of Tools: ${avg('tools')}/10\nCumulative: ${avg('cum')}/10\n\nPlease provide a comprehensive monthly evaluation:\n1. TREND ANALYSIS — What patterns do you see across sessions? Improving or declining?\n2. PROBLEMS IDENTIFIED — Which dimensions are consistently low and why?\n3. STRENGTHS (Glows) — What is this teacher doing well consistently?\n4. SOLUTIONS (Grows) — Specific, actionable strategies to address each problem\n5. 15-DAY IMPROVEMENT PLAN — A concrete week-by-week plan\n6. PRIORITY FOCUS — The single most impactful change to make immediately\n\nKeep the tone constructive, professional, and evidence-based. Give the full report in one go.`;
+  const lowest=([['Communication','comm'],['Understanding','und'],['Curiosity','cur'],["Bloom's",'bloom'],['Tools','tools'],['Cumulative','cum']]).sort((a,b)=>avg(a[1])-avg(b[1]))[0][0];
+  const highest=([['Communication','comm'],['Understanding','und'],['Curiosity','cur'],["Bloom's",'bloom'],['Tools','tools'],['Cumulative','cum']]).sort((a,b)=>avg(b[1])-avg(a[1]))[0][0];
+  const sessions=target.map((r,i)=>`  Session ${i+1} | Date: ${r.date} | Class: ${r.cls}
+    Communication: ${r.comm}/10  Understanding: ${r.und}/10  Curiosity: ${r.cur}/10
+    Bloom's Taxonomy: ${r.bloom||0}/10  Use of Tools: ${r.tools||0}/10  Cumulative: ${r.cum}/10
+    ${r.obs?'Observation: '+r.obs:''}`).join('\n\n');
+
+  const prompt=`You are a senior educational coach and instructional specialist with deep expertise in pedagogy, classroom observation, and teacher development. Below is structured performance data collected from a teacher's classroom sessions over ${label}. Analyse this data thoroughly and produce a complete, professional evaluation report in one go — do not pause, ask questions, or wait for confirmation at any point.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SESSION DATA (${target.length} sessions)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${sessions}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SCORE AVERAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Communication:       ${avg('comm')}/10
+Understanding:       ${avg('und')}/10
+Curiosity:           ${avg('cur')}/10
+Bloom's Taxonomy:    ${avg('bloom')}/10
+Use of Tools:        ${avg('tools')}/10
+Cumulative:          ${avg('cum')}/10
+
+Highest dimension: ${highest}
+Lowest dimension:  ${lowest}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REQUIRED EVALUATION REPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Generate a complete structured report covering ALL of the following sections:
+
+SECTION 1 — TREND ANALYSIS
+Analyse the trajectory of each dimension across sessions. Are scores improving, declining, or plateauing? Identify any sudden drops or spikes and what they might indicate. Note correlations between dimensions (e.g. does Curiosity rise when Tools usage rises?).
+
+SECTION 2 — BLOOM'S TAXONOMY DEEP DIVE
+Based on the Bloom's Taxonomy scores, evaluate which cognitive levels the teacher is consistently reaching (Remember, Understand, Apply, Analyse, Evaluate, Create). Which levels appear underrepresented? What types of questions or activities would push students to higher-order thinking? Provide 3 specific classroom strategies to elevate Bloom's scores.
+
+SECTION 3 — MARZANO'S INSTRUCTIONAL FRAMEWORK ANALYSIS
+Using Marzano's nine high-yield instructional strategies as a lens, evaluate the teacher's likely instructional approach based on the data. Address: setting objectives and providing feedback, reinforcing effort, cooperative learning, generating and testing hypotheses, cues and questions, advance organisers, summarising and note-taking, homework and practice, and non-linguistic representations. Flag which strategies appear absent or weak.
+
+SECTION 4 — CLASS & STUDENT ENGAGEMENT ANALYSIS
+Evaluate the likely teacher-to-student talk ratio pattern, the quality of student engagement based on Curiosity scores, and how the class dynamic may be affecting learning outcomes. Comment on whether the classroom appears student-centred or teacher-dominated based on the data patterns.
+
+SECTION 5 — TOOL UTILISATION ANALYSIS
+Analyse the Use of Tools scores across sessions. Are teaching-learning materials (IFP, manipulatives, worksheets, digital tools) being used effectively and consistently? What impact does tool usage appear to have on other dimensions? Suggest 3 underutilised tools or strategies that could immediately improve engagement.
+
+SECTION 6 — COMMUNICATION EFFECTIVENESS
+Evaluate the Communication scores in context. Address clarity, pacing, tone, and instructional language. If Communication is inconsistent across sessions, hypothesise why. Provide 3 targeted strategies to strengthen classroom communication.
+
+SECTION 7 — PROBLEMS IDENTIFIED
+List the top 3 recurring problems clearly, with evidence from the data. For each problem: name it, explain why it matters, and describe its downstream impact on learning.
+
+SECTION 8 — GLOWS (Strengths)
+Identify 3 genuine, evidence-based strengths. Be specific — reference actual score patterns or session observations. Explain why each strength is valuable and how it can be leveraged further.
+
+SECTION 9 — GROWS (Areas for Development)
+Identify 3 priority development areas. For each, provide: the specific gap, the root cause hypothesis, a concrete improvement strategy, and a success indicator to track progress.
+
+SECTION 10 — 15-DAY IMPROVEMENT PLAN
+Construct a detailed, realistic 15-day professional development plan structured as follows:
+  Days 1–5: Focus area, daily micro-actions, reflection prompt
+  Days 6–10: Focus area, daily micro-actions, reflection prompt
+  Days 11–15: Focus area, daily micro-actions, reflection prompt
+The plan should directly address the lowest-scoring dimension (${lowest}) while maintaining strengths in ${highest}.
+
+SECTION 11 — PRIORITY FOCUS
+State the single most impactful change this teacher can make in their very next class. Be direct, specific, and actionable. Explain the reasoning in 2–3 sentences.
+
+SECTION 12 — PROFESSIONAL SUMMARY
+Write a 3–4 sentence professional summary of this teacher's current performance, growth trajectory, and potential. Keep the tone warm, honest, and motivating — as a coach would write to a colleague.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INSTRUCTIONS FOR OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Produce the entire report in one response without stopping
+- Use the section headers exactly as numbered above
+- Be evidence-based: reference actual scores and patterns, not generic advice
+- Tone: constructive, professional, warm — like a senior mentor, not a critic
+- Length: comprehensive and thorough — this is a formal evaluation document
+- End with the quote: "As educators of Sunbeam, we grow by reflecting, refining, and renewing our practice."`;
+
   return prompt;
 }
 
